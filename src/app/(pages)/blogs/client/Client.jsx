@@ -185,12 +185,12 @@ const Client = () => {
                     <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-full">
                       <FaCalendarAlt className="text-primary" />
                       <span className="font-medium">
-                        {new Date(blogs[0].timestamp).toLocaleDateString()}
+                        November 1, 2025
                       </span>
                     </div>
                     <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-full">
                       <FaUser className="text-primary" />
-                      <span className="font-medium">{blogs[0].author}</span>
+                      <span className="font-medium">Honhaar Jawan</span>
                     </div>
                     <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-full">
                       <FaClock className="text-primary" />
