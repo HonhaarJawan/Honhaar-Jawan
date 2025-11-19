@@ -1711,7 +1711,7 @@ const buildZipName = (image, idx) => {
               }}
               className="w-full text-left px-4 py-3 rounded border border-neutral-800 hover:border-neutral-500 bg-neutral-900 text-neutral-200"
             >
-              Individual Settings
+              Individual Settings.
             </button>
             <button
               onClick={() => {
