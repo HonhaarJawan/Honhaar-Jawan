@@ -93,6 +93,18 @@ const OnlineTest = () => {
     }
   };
 
+  const replacePlaceholders = (template, placeholders) => {
+    if (!template) return "";
+    const data =
+      typeof placeholders === "object" && placeholders !== null
+        ? placeholders
+        : {};
+    return template.replace(/\{([^}]*)\}|\${(.*?)}/g, (match, key1, key2) => {
+      const key = key1 ? key1.trim() : key2.trim();
+      return data[key] || "";
+    });
+  };
+
   const SendFailed_or_Pass_email_via_Pabbly = async (percentage, user) => {
     try {
       console.log(percentage);
@@ -103,10 +115,14 @@ const OnlineTest = () => {
       const failedSnap = await getDoc(testfail);
 
       // Determine which template and subject to use based on percentage
-      const template =
+      const templateData =
         percentage >= 40
           ? passedSnap.data().template
           : failedSnap.data().template;
+
+      const template = replacePlaceholders(templateData, {
+        testMarks: percentage,
+      });
 
       const addListId =
         percentage >= 40
@@ -305,7 +321,7 @@ const OnlineTest = () => {
                   animate={{ y: 0, opacity: 1 }}
                   className="text-2xl font-bold text-primary bg-white/90 px-4 py-2 rounded-full"
                 >
-                  Incorrect! Try again!
+                  Incorrect Answer!
                 </motion.div>
               </div>
             </motion.div>
@@ -454,31 +470,6 @@ const OnlineTest = () => {
                       next question.
                     </p>
                   </div>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="bg-white p-4 rounded-xl shadow-lg mb-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-700 font-medium">
-                    Your Progress
-                  </span>
-                  <span className="text-second font-bold">
-                    Question {currentQuestionIndex + 1} of{" "}
-                    {shuffledQuestions.length}
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div
-                    className="bg-gradient-to-r from-second to-primary h-3 rounded-full transition-all duration-500"
-                    style={{
-                      width: `${
-                        ((currentQuestionIndex + 1) /
-                          shuffledQuestions.length) *
-                        100
-                      }%`,
-                    }}
-                  ></div>
                 </div>
               </div>
 
