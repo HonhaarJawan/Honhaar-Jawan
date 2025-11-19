@@ -111,7 +111,7 @@ const ApplicationSubmitted = () => {
     if (templateSnap.exists()) {
       const template = templateSnap.data().template;
 
-      await fetch("https://honhaarjawan.pk/api/sendMail", {
+      await fetch("/api/sendMail", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
