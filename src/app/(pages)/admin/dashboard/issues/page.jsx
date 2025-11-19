@@ -78,7 +78,7 @@ const CourseDetailPopup = ({ isOpen, onClose, course }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative border-2 border-yellow-500">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
@@ -368,11 +368,11 @@ const IdleSearchAnimation = () => {
     <div className="flex justify-center mt-12">
       <div className="text-center">
         <div className="relative w-24 h-24 mx-auto mb-4">
-          <div className="absolute top-0 left-0 w-full h-full border-8 border-primary/20 rounded-full"></div>
-          <div className="absolute top-0 left-0 w-full h-full border-8 border-primary rounded-full border-t-transparent animate-spin"></div>
+          <div className="absolute top-0 left-0 w-full h-full border-8 border-yellow-500/20 rounded-full"></div>
+          <div className="absolute top-0 left-0 w-full h-full border-8 border-yellow-500 rounded-full border-t-transparent animate-spin"></div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <svg
-              className="w-8 h-8 text-primary"
+              className="w-8 h-8 text-yellow-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -392,15 +392,15 @@ const IdleSearchAnimation = () => {
         </p>
         <div className="mt-4 flex justify-center gap-1">
           <div
-            className="w-2 h-2 bg-primary rounded-full animate-bounce"
+            className="w-2 h-2 bg-yellow-500 rounded-full animate-bounce"
             style={{ animationDelay: "0ms" }}
           ></div>
           <div
-            className="w-2 h-2 bg-primary rounded-full animate-bounce"
+            className="w-2 h-2 bg-yellow-500 rounded-full animate-bounce"
             style={{ animationDelay: "150ms" }}
           ></div>
           <div
-            className="w-2 h-2 bg-primary rounded-full animate-bounce"
+            className="w-2 h-2 bg-yellow-500 rounded-full animate-bounce"
             style={{ animationDelay: "300ms" }}
           ></div>
         </div>
@@ -415,9 +415,11 @@ const NoResultsAnimation = () => {
     <div className="flex flex-col items-center justify-center py-12">
       <div className="loader mb-4"></div>
       <div className="typing-container">
-        <p className="typing-text text-primary font-semibold">No User Found.</p>
+        <p className="typing-text text-yellow-500 font-semibold">
+          No User Found.
+        </p>
       </div>
-      <p className="text-primary/80 font-semibold text-sm mt-2">
+      <p className="text-yellow-500/80 font-semibold text-sm mt-2">
         Try a different CNIC, name, email, or phone
       </p>
       <style jsx>{`
@@ -568,7 +570,7 @@ const ManualEnrollmentModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-5xl max-h-[80vh] overflow-y-auto p-6">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-5xl max-h-[80vh] overflow-y-auto p-6 border-2 border-yellow-500">
         <h2 className="text-xl font-semibold mb-4">Manual Course Enrollment</h2>
         <p className="text-sm text-gray-600 mb-4">
           Enroll {user.fullName} ({user.email}) in additional courses
@@ -582,7 +584,7 @@ const ManualEnrollmentModal = ({
                 onClick={() => handleCourseToggle(course)}
                 className={`border rounded-lg p-3 cursor-pointer transition-all ${
                   selectedCourses.some((c) => c.id === course.id)
-                    ? "border-primary bg-primary/10"
+                    ? "border-yellow-500 bg-yellow-50"
                     : "border-gray-200 hover:border-gray-300"
                 }`}
               >
@@ -591,7 +593,7 @@ const ManualEnrollmentModal = ({
                     <div
                       className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
                         selectedCourses.some((c) => c.id === course.id)
-                          ? "border-primary bg-primary"
+                          ? "border-yellow-500 bg-yellow-500"
                           : "border-gray-300"
                       }`}
                     >
@@ -635,7 +637,7 @@ const ManualEnrollmentModal = ({
             <button
               onClick={handleEnrollCourses}
               disabled={isLoading || selectedCourses.length === 0}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+              className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 disabled:opacity-50"
             >
               {isLoading ? "Processing..." : "Enroll Courses"}
             </button>
@@ -734,7 +736,7 @@ const ManualUnenrollmentModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-5xl max-h-[80vh] overflow-y-auto p-6">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-5xl max-h-[80vh] overflow-y-auto p-6 border-2 border-yellow-500">
         <h2 className="text-xl font-semibold mb-4">
           Manual Course Unenrollment
         </h2>
@@ -1364,17 +1366,17 @@ const IssuesViewContent = () => {
             }}
             className={`bg-white rounded-xl shadow-md border-2 overflow-hidden transition-all duration-200 cursor-pointer hover:shadow-lg ${
               selectedUser?.id === user.id
-                ? "border-primary shadow-lg ring-2 ring-primary/20"
-                : "border-gray-200 hover:border-primary/50"
+                ? "border-yellow-500 shadow-lg ring-2 ring-yellow-500/20"
+                : "border-gray-200 hover:border-yellow-500/50"
             }`}
           >
             <div
               className={`p-4 ${
-                selectedUser?.id === user.id ? "bg-primary/80" : "bg-sec2/40"
+                selectedUser?.id === user.id ? "bg-yellow-500" : "bg-sec2"
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-sec2 flex items-center justify-center text-white font-bold text-lg">
+                <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center text-white font-bold text-lg">
                   {user.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -1416,7 +1418,7 @@ const IssuesViewContent = () => {
               </div>
             </div>
             {selectedUser?.id === user.id && (
-              <div className="bg-primary text-white text-xs font-medium px-3 py-1 flex items-center justify-center gap-1">
+              <div className="bg-yellow-500 text-white text-xs font-medium px-3 py-1 flex items-center justify-center gap-1">
                 <FaCheck className="h-3 w-3" />
                 Selected
               </div>
@@ -1452,85 +1454,94 @@ const IssuesViewContent = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-7xl text-white p-6">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-3xl text-primary font-bold mb-4">
+      {/* Header Section */}
+      <div className="bg-sec2 px-6 py-8 border-b-2 border-yellow-500">
+        <div className="text-center">
+          <h1 className="text-3xl text-white font-bold mb-2">
             User Issues Management Panel
           </h1>
+          <p className="text-yellow-500">
+            Search, manage, and resolve user issues efficiently
+          </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex flex-col sm:flex-row items-center gap-3 mb-6">
-            <div className="relative flex-1 w-full">
+      {/* Search Section */}
+      <div className="bg-white px-6 py-6 border-b-2 border-yellow-500">
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative flex-1 w-full">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaSearch className="text-gray-400" />
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-10 pr-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-800 transition duration-200"
+              placeholder="Search by CNIC, full name, email, or phone..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+            />
+          </div>
+          <button
+            onClick={handleSearch}
+            className="w-full sm:w-auto bg-sec2 text-white px-5 py-3 rounded-lg hover:bg-opacity-90 transition flex items-center justify-center gap-2 font-medium shadow-sm border-2 border-yellow-500"
+            disabled={loading}
+          >
+            <FaSearch />
+            Search
+          </button>
+        </div>
+
+        {results.length > 0 && (
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-6">
+            <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+              <FaFilter className="text-yellow-500" />
+              Search Results ({filteredResults.length} of {results.length})
+            </h2>
+            <div className="relative max-w-md w-full">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaSearch className="text-gray-400" />
+                <FaFilter className="text-gray-400" />
               </div>
               <input
                 type="text"
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-800 transition duration-200"
-                placeholder="Search by CNIC, full name, email, or phone..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                className="block w-full pl-10 pr-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-800 transition duration-200"
+                placeholder="Filter within results..."
+                value={nestedSearchTerm}
+                onChange={(e) => setNestedSearchTerm(e.target.value)}
               />
             </div>
-            <button
-              onClick={handleSearch}
-              className="w-full sm:w-auto bg-primary text-white px-5 py-3 rounded-lg hover:bg-primary/90 transition flex items-center justify-center gap-2 font-medium shadow-sm"
-              disabled={loading}
-            >
-              <FaSearch />
-              Search
-            </button>
           </div>
+        )}
+      </div>
 
-          {results.length > 0 && (
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-              <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                <FaFilter className="text-primary" />
-                Search Results ({filteredResults.length} of {results.length})
-              </h2>
-              <div className="relative max-w-md w-full">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaFilter className="text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-800 transition duration-200"
-                  placeholder="Filter within results..."
-                  value={nestedSearchTerm}
-                  onChange={(e) => setNestedSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-          )}
-
-          {loading ? (
-            <div className="relative flex items-center justify-center py-4">
-              <SearchAnimation />
-            </div>
-          ) : searchTerm === "" ? (
-            <IdleSearchAnimation />
-          ) : results.length === 0 ? (
+      {/* Search Results Section */}
+      <div className="px-6 py-6">
+        {loading ? (
+          <div className="relative flex items-center justify-center py-4">
+            <SearchAnimation />
+          </div>
+        ) : searchTerm === "" ? (
+          <IdleSearchAnimation />
+        ) : results.length === 0 ? (
+          <NoResultsAnimation />
+        ) : filteredResults.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-sm border-2 border-yellow-500 p-8">
             <NoResultsAnimation />
-          ) : filteredResults.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-              <NoResultsAnimation />
-            </div>
-          ) : (
-            renderUserCards()
-          )}
-        </div>
+          </div>
+        ) : (
+          renderUserCards()
+        )}
+      </div>
 
-        {selectedUser && (
+      {/* Selected User Details Section */}
+      {selectedUser && (
+        <div className="bg-sec2 px-6 py-6 border-t-2 border-yellow-500">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Creative Left Side - User Profile & Credentials */}
+            {/* Left Column - User Profile & Credentials */}
             <div className="lg:col-span-1 space-y-6">
-              {/* User Profile Card with Improved Layout */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative">
-                <div className="bg-gradient-to-br from-primary to-primary/80 p-4 relative overflow-hidden">
+              {/* User Profile Card */}
+              <div className="bg-white rounded-xl shadow-sm border-2 border-yellow-500 overflow-hidden">
+                <div className="bg-sec2 p-4 relative overflow-hidden">
                   <div className="relative z-10">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center">
@@ -1540,14 +1551,14 @@ const IssuesViewContent = () => {
                         <h3 className="font-bold text-xl text-white">
                           {selectedUser.fullName || "Unnamed User"}
                         </h3>
-                        <p className="text-sm text-white/90">
+                        <p className="text-sm text-white">
                           {selectedUser.email || "No email"}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border-2 border-white/30">
                         <div className="flex items-center gap-2 text-white">
                           <FaPhone className="text-sm" />
                           <span className="text-sm font-medium">
@@ -1555,7 +1566,7 @@ const IssuesViewContent = () => {
                           </span>
                         </div>
                       </div>
-                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border-2 border-white/30">
                         <div className="flex items-center gap-2 text-white">
                           <FaIdCard className="text-sm" />
                           <span className="text-sm font-medium">
@@ -1569,7 +1580,7 @@ const IssuesViewContent = () => {
 
                 <div className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                    <div className="bg-gray-100 rounded-lg p-3 border-2 border-gray-200">
                       <div className="flex items-center gap-2 text-gray-700">
                         <FaCalendarAlt className="text-sm" />
                         <span className="text-sm font-medium">
@@ -1579,7 +1590,7 @@ const IssuesViewContent = () => {
                         </span>
                       </div>
                     </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                    <div className="bg-gray-100 rounded-lg p-3 border-2 border-gray-200">
                       <div className="flex items-center gap-2 text-gray-700">
                         <FaCreditCard className="text-sm" />
                         <span
@@ -1597,24 +1608,24 @@ const IssuesViewContent = () => {
 
                   <button
                     onClick={() => setIsEditProfileModalOpen(true)}
-                    className="w-full bg-gradient-to-r from-primary to-primary/90 text-white px-4 py-3 rounded-lg hover:from-primary/90 hover:to-primary/80 transition flex items-center justify-center gap-2 text-sm font-medium shadow-lg"
+                    className="w-full bg-sec2 text-white px-4 py-3 rounded-lg hover:bg-opacity-90 transition flex items-center justify-center gap-2 text-sm font-medium shadow-lg border-2 border-yellow-500"
                   >
                     <FaEdit /> Edit Profile
                   </button>
                 </div>
               </div>
 
-              {/* Credentials Card with Improved Layout */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative">
-                <div className="bg-second p-4 relative overflow-hidden">
+              {/* Credentials Card */}
+              <div className="bg-white rounded-xl shadow-sm border-2 border-yellow-500 overflow-hidden">
+                <div className="bg-sec2 p-4 relative overflow-hidden">
                   <div className="relative z-10">
                     <h3 className="font-bold text-xl text-white mb-4 flex items-center gap-2">
-                      <FaShieldAlt className="text-yellow-400" />
+                      <FaShieldAlt className="text-yellow-500" />
                       Secure Credentials
                     </h3>
 
                     <div className="space-y-4">
-                      <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-white/10">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-2 border-white/30">
                         <div className="flex items-center gap-3 text-white">
                           <FaLock className="text-green-400" />
                           <div>
@@ -1627,7 +1638,7 @@ const IssuesViewContent = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-white/10">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-2 border-white/30">
                         <div className="flex items-center gap-3 text-white">
                           <FaLock className="text-green-400" />
                           <div>
@@ -1640,7 +1651,7 @@ const IssuesViewContent = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-white/10">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-2 border-white/30">
                         <div className="flex items-center gap-3 text-white">
                           <FaSchool className="text-blue-400" />
                           <div>
@@ -1652,7 +1663,7 @@ const IssuesViewContent = () => {
                         </div>
                       </div>
 
-                      <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-white/10">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-2 border-white/30">
                         <div className="flex items-center gap-3 text-white">
                           <FaUser className="text-purple-400" />
                           <div>
@@ -1669,10 +1680,11 @@ const IssuesViewContent = () => {
               </div>
             </div>
 
-            <div className="lg:col-span-2">
+            {/* Right Column - User Overview & Actions */}
+            <div className="lg:col-span-2 space-y-6">
               {/* User Overview Card with Tabs */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-                <div className="bg-gradient-to-r from-primary to-primary/80 p-4">
+              <div className="bg-white rounded-xl shadow-sm border-2 border-yellow-500 overflow-hidden">
+                <div className="bg-sec2 p-4">
                   <h3 className="font-bold text-white flex items-center gap-2">
                     <FaTachometerAlt /> User Overview
                   </h3>
@@ -1681,10 +1693,10 @@ const IssuesViewContent = () => {
                   {/* Status Cards Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div
-                      className={`flex items-center p-4 rounded-lg ${
+                      className={`flex items-center p-4 rounded-lg border-2 ${
                         selectedUser?.OnlineTestPercentage >= 40
-                          ? "bg-green-50 text-green-800 border border-green-200"
-                          : "bg-yellow-50 text-yellow-800 border border-yellow-200"
+                          ? "bg-green-50 text-green-800 border-green-200"
+                          : "bg-yellow-50 text-yellow-800 border-yellow-200"
                       }`}
                     >
                       {selectedUser?.OnlineTestPercentage >= 40 ? (
@@ -1702,10 +1714,10 @@ const IssuesViewContent = () => {
                       </div>
                     </div>
                     <div
-                      className={`flex items-center p-4 rounded-lg ${
+                      className={`flex items-center p-4 rounded-lg border-2 ${
                         selectedUser?.generatedPayProId?.paid
-                          ? "bg-green-50 text-green-800 border border-green-200"
-                          : "bg-yellow-50 text-yellow-800 border border-yellow-200"
+                          ? "bg-green-50 text-green-800 border-green-200"
+                          : "bg-yellow-50 text-yellow-800 border-yellow-200"
                       }`}
                     >
                       {selectedUser?.generatedPayProId?.paid ? (
@@ -1726,13 +1738,13 @@ const IssuesViewContent = () => {
 
                   {/* Action Tabs */}
                   <div className="mb-6">
-                    <div className="border-b border-gray-200">
+                    <div className="border-b-2 border-gray-200">
                       <nav className="-mb-px flex space-x-8">
                         <button
                           onClick={() => setActiveTab("account")}
                           className={`py-2 px-1 border-b-2 text-sm font-medium transition-colors ${
                             activeTab === "account"
-                              ? "border-primary text-primary"
+                              ? "border-yellow-500 text-yellow-600"
                               : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                           }`}
                         >
@@ -1745,7 +1757,7 @@ const IssuesViewContent = () => {
                           onClick={() => setActiveTab("courses")}
                           className={`py-2 px-1 border-b-2 text-sm font-medium transition-colors ${
                             activeTab === "courses"
-                              ? "border-primary text-primary"
+                              ? "border-yellow-500 text-yellow-600"
                               : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                           }`}
                         >
@@ -1758,7 +1770,7 @@ const IssuesViewContent = () => {
                           onClick={() => setActiveTab("system")}
                           className={`py-2 px-1 border-b-2 text-sm font-medium transition-colors ${
                             activeTab === "system"
-                              ? "border-primary text-primary"
+                              ? "border-yellow-500 text-yellow-600"
                               : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                           }`}
                         >
@@ -1772,7 +1784,7 @@ const IssuesViewContent = () => {
 
                     {/* Tab Content - Account Actions */}
                     {activeTab === "account" && (
-                      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                      <div className="mt-4 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-3">
                             <h4 className="font-medium text-gray-700 mb-2">
@@ -1785,15 +1797,15 @@ const IssuesViewContent = () => {
                                   !selectedUser?.email ||
                                   verifyButtonStatus === "loading"
                                 }
-                                className={`px-4 py-2 rounded-lg transition text-sm font-medium shadow-sm flex items-center gap-2 ${
+                                className={`px-4 py-2 rounded-lg transition text-sm font-medium shadow-sm flex items-center gap-2 border-2 ${
                                   !selectedUser?.email ||
                                   verifyButtonStatus === "loading"
-                                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                                    ? "bg-gray-400 text-gray-700 cursor-not-allowed border-gray-400"
                                     : verifyButtonStatus === "success"
-                                      ? "bg-green-600 text-white cursor-default"
+                                      ? "bg-green-600 text-white cursor-default border-green-600"
                                       : verifyButtonStatus === "error"
-                                        ? "bg-red-600 text-white hover:bg-red-700"
-                                        : "bg-green-600 text-white hover:bg-green-700"
+                                        ? "bg-red-600 text-white hover:bg-red-700 border-red-600"
+                                        : "bg-green-600 text-white hover:bg-green-700 border-green-600"
                                 }`}
                               >
                                 {verifyButtonStatus === "loading" ? (
@@ -1819,15 +1831,15 @@ const IssuesViewContent = () => {
                                   !selectedUser?.email ||
                                   createButtonStatus === "loading"
                                 }
-                                className={`px-4 py-2 rounded-lg transition text-sm font-medium shadow-sm flex items-center gap-2 ${
+                                className={`px-4 py-2 rounded-lg transition text-sm font-medium shadow-sm flex items-center gap-2 border-2 ${
                                   !selectedUser?.email ||
                                   createButtonStatus === "loading"
-                                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                                    ? "bg-gray-400 text-gray-700 cursor-not-allowed border-gray-400"
                                     : createButtonStatus === "success"
-                                      ? "bg-indigo-600 text-white cursor-default"
+                                      ? "bg-indigo-600 text-white cursor-default border-indigo-600"
                                       : createButtonStatus === "error"
-                                        ? "bg-red-600 text-white hover:bg-red-700"
-                                        : "bg-indigo-600 text-white hover:bg-indigo-700"
+                                        ? "bg-red-600 text-white hover:bg-red-700 border-red-600"
+                                        : "bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-600"
                                 }`}
                               >
                                 {createButtonStatus === "loading" ? (
@@ -1857,7 +1869,7 @@ const IssuesViewContent = () => {
                             <div className="flex flex-col gap-2">
                               <button
                                 onClick={() => setIsEditProfileModalOpen(true)}
-                                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm font-medium shadow-sm flex items-center gap-2"
+                                className="px-4 py-2 bg-sec2 text-white rounded-lg hover:bg-opacity-90 transition text-sm font-medium shadow-sm flex items-center gap-2 border-2 border-yellow-500"
                               >
                                 <FaEdit /> Edit Profile
                               </button>
@@ -1866,14 +1878,14 @@ const IssuesViewContent = () => {
                                 disabled={
                                   !selectedUser || resetTestStatus === "loading"
                                 }
-                                className={`px-4 py-2 rounded-lg transition text-sm font-medium shadow-sm flex items-center gap-2 ${
+                                className={`px-4 py-2 rounded-lg transition text-sm font-medium shadow-sm flex items-center gap-2 border-2 ${
                                   !selectedUser || resetTestStatus === "loading"
-                                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                                    ? "bg-gray-400 text-gray-700 cursor-not-allowed border-gray-400"
                                     : resetTestStatus === "success"
-                                      ? "bg-green-600 text-white cursor-default"
+                                      ? "bg-green-600 text-white cursor-default border-green-600"
                                       : resetTestStatus === "error"
-                                        ? "bg-red-600 text-white hover:bg-red-700"
-                                        : "bg-orange-600 text-white hover:bg-orange-700"
+                                        ? "bg-red-600 text-white hover:bg-red-700 border-red-600"
+                                        : "bg-orange-600 text-white hover:bg-orange-700 border-orange-600"
                                 }`}
                               >
                                 {resetTestStatus === "loading" ? (
@@ -1901,7 +1913,7 @@ const IssuesViewContent = () => {
 
                     {/* Tab Content - Course Management */}
                     {activeTab === "courses" && (
-                      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                      <div className="mt-4 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-3">
                             <h4 className="font-medium text-gray-700 mb-2">
@@ -1910,7 +1922,7 @@ const IssuesViewContent = () => {
                             <div className="flex flex-col gap-2">
                               <button
                                 onClick={() => setIsEditCoursesModalOpen(true)}
-                                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm font-medium shadow-sm flex items-center gap-2"
+                                className="px-4 py-2 bg-sec2 text-white rounded-lg hover:bg-opacity-90 transition text-sm font-medium shadow-sm flex items-center gap-2 border-2 border-yellow-500"
                               >
                                 <FaUsersCog /> Manage Courses
                               </button>
@@ -1918,7 +1930,7 @@ const IssuesViewContent = () => {
                                 onClick={() =>
                                   setIsManualEnrollmentModalOpen(true)
                                 }
-                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium shadow-sm flex items-center gap-2"
+                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium shadow-sm flex items-center gap-2 border-2 border-green-600"
                               >
                                 <FaPlus /> Manual Enrollment
                               </button>
@@ -1926,7 +1938,7 @@ const IssuesViewContent = () => {
                                 onClick={() =>
                                   setIsManualUnenrollmentModalOpen(true)
                                 }
-                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-sm flex items-center gap-2"
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-sm flex items-center gap-2 border-2 border-red-600"
                               >
                                 <FaTimesCircle /> Manual Unenrollment
                               </button>
@@ -1952,7 +1964,7 @@ const IssuesViewContent = () => {
 
                     {/* Tab Content - System Actions */}
                     {activeTab === "system" && (
-                      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                      <div className="mt-4 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
                         <div className="space-y-3">
                           <h4 className="font-medium text-gray-700 mb-2">
                             System Administration
@@ -1962,7 +1974,7 @@ const IssuesViewContent = () => {
                               onClick={() =>
                                 handleDeleteAccount(selectedUser.id)
                               }
-                              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-sm flex items-center gap-2"
+                              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-sm flex items-center gap-2 border-2 border-red-600"
                             >
                               <FaTrashAlt /> Delete Account
                             </button>
@@ -1977,13 +1989,13 @@ const IssuesViewContent = () => {
                   </div>
 
                   {/* Payment Information Card */}
-                  <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                  <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 mb-6">
                     <h4 className="font-medium text-yellow-800 mb-3 flex items-center gap-2">
                       <FaMoneyBill className="text-yellow-600" />
                       Initial Payment via PayPro
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-white rounded-md p-3 shadow-sm">
+                      <div className="bg-white rounded-md p-3 shadow-sm border-2 border-gray-200">
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-600">
                             Consumer Number:
@@ -1994,7 +2006,7 @@ const IssuesViewContent = () => {
                           </span>
                         </div>
                       </div>
-                      <div className="bg-white rounded-md p-3 shadow-sm">
+                      <div className="bg-white rounded-md p-3 shadow-sm border-2 border-gray-200">
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-600">
                             Invoice ID:
@@ -2011,8 +2023,8 @@ const IssuesViewContent = () => {
               </div>
 
               {/* Enrollment Details Card with Compact Course Cards */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="bg-second2 p-4">
+              <div className="bg-white rounded-xl shadow-sm border-2 border-yellow-500 overflow-hidden">
+                <div className="bg-sec2 p-4">
                   <h3 className="font-bold text-white flex items-center gap-2">
                     <FaGraduationCap /> Enrollment Details
                   </h3>
@@ -2033,7 +2045,7 @@ const IssuesViewContent = () => {
                             onClick={() => handleCourseClick(course)}
                             className="relative group cursor-pointer"
                           >
-                            <div className="h-20 rounded-lg overflow-hidden shadow-sm border border-gray-200 transition-all duration-300 group-hover:shadow-lg bg-gray-100">
+                            <div className="h-20 rounded-lg overflow-hidden shadow-sm border-2 border-gray-200 transition-all duration-300 group-hover:shadow-lg bg-gray-100">
                               <img
                                 src={getImagePath(course.image)}
                                 alt={course.name}
@@ -2081,7 +2093,7 @@ const IssuesViewContent = () => {
                             onClick={() => handleCourseClick(course)}
                             className="relative group cursor-pointer"
                           >
-                            <div className="h-20 rounded-lg overflow-hidden shadow-sm border border-gray-200 transition-all duration-300 group-hover:shadow-lg bg-gray-100">
+                            <div className="h-20 rounded-lg overflow-hidden shadow-sm border-2 border-gray-200 transition-all duration-300 group-hover:shadow-lg bg-gray-100">
                               <img
                                 src={getImagePath(course.image)}
                                 alt={course.name}
@@ -2125,87 +2137,88 @@ const IssuesViewContent = () => {
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {showConfirmModal && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50 p-4">
-            <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-auto">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900">
-                Confirm Deletion
-              </h3>
-              <p className="text-gray-700 text-sm mb-6">
-                Are you sure you want to delete user "
-                <span className="font-semibold">{userToDeleteId}</span>"? This
-                action cannot be undone.
-              </p>
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={() => {
-                    setShowConfirmModal(false);
-                    setUserToDeleteId(null);
-                    showToast("User deletion cancelled.", "success");
-                  }}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition text-sm"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmDeleteUser}
-                  disabled={deletingUser}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition disabled:opacity-50 flex items-center justify-center text-sm"
-                >
-                  {deletingUser ? (
-                    <>
-                      <FaSpinner className="animate-spin mr-2" />
-                      Deleting...
-                    </>
-                  ) : (
-                    "Delete Permanently"
-                  )}
-                </button>
-              </div>
+      {/* Modals */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-auto border-2 border-yellow-500">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">
+              Confirm Deletion
+            </h3>
+            <p className="text-gray-700 text-sm mb-6">
+              Are you sure you want to delete user "
+              <span className="font-semibold">{userToDeleteId}</span>"? This
+              action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setUserToDeleteId(null);
+                  showToast("User deletion cancelled.", "success");
+                }}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteUser}
+                disabled={deletingUser}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition disabled:opacity-50 flex items-center justify-center text-sm"
+              >
+                {deletingUser ? (
+                  <>
+                    <FaSpinner className="animate-spin mr-2" />
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete Permanently"
+                )}
+              </button>
             </div>
           </div>
-        )}
-        <EditProfileModal
-          isOpen={isEditProfileModalOpen}
-          onClose={() => setIsEditProfileModalOpen(false)}
+        </div>
+      )}
+      <EditProfileModal
+        isOpen={isEditProfileModalOpen}
+        onClose={() => setIsEditProfileModalOpen(false)}
+        user={selectedUser}
+        onUpdateSuccess={handleUpdateUser}
+      />
+      {selectedUser && (
+        <EditCoursesModal
+          isOpen={isEditCoursesModalOpen}
+          onClose={() => setIsEditCoursesModalOpen(false)}
           user={selectedUser}
+          allCourses={courses}
           onUpdateSuccess={handleUpdateUser}
         />
-        {selectedUser && (
-          <EditCoursesModal
-            isOpen={isEditCoursesModalOpen}
-            onClose={() => setIsEditCoursesModalOpen(false)}
-            user={selectedUser}
-            allCourses={courses}
-            onUpdateSuccess={handleUpdateUser}
-          />
-        )}
-        {selectedUser && (
-          <ManualEnrollmentModal
-            isOpen={isManualEnrollmentModalOpen}
-            onClose={() => setIsManualEnrollmentModalOpen(false)}
-            user={selectedUser}
-            availableCourses={availableCoursesForEnrollment}
-            onUpdateSuccess={handleUpdateUser}
-          />
-        )}
-        {selectedUser && (
-          <ManualUnenrollmentModal
-            isOpen={isManualUnenrollmentModalOpen}
-            onClose={() => setIsManualUnenrollmentModalOpen(false)}
-            user={selectedUser}
-            enrolledCourses={allEnrolledCourses}
-            onUpdateSuccess={handleUpdateUser}
-          />
-        )}
-        <CourseDetailPopup
-          isOpen={isCoursePopupOpen}
-          onClose={() => setIsCoursePopupOpen(false)}
-          course={selectedCourse}
+      )}
+      {selectedUser && (
+        <ManualEnrollmentModal
+          isOpen={isManualEnrollmentModalOpen}
+          onClose={() => setIsManualEnrollmentModalOpen(false)}
+          user={selectedUser}
+          availableCourses={availableCoursesForEnrollment}
+          onUpdateSuccess={handleUpdateUser}
         />
-      </div>
+      )}
+      {selectedUser && (
+        <ManualUnenrollmentModal
+          isOpen={isManualUnenrollmentModalOpen}
+          onClose={() => setIsManualUnenrollmentModalOpen(false)}
+          user={selectedUser}
+          enrolledCourses={allEnrolledCourses}
+          onUpdateSuccess={handleUpdateUser}
+        />
+      )}
+      <CourseDetailPopup
+        isOpen={isCoursePopupOpen}
+        onClose={() => setIsCoursePopupOpen(false)}
+        course={selectedCourse}
+      />
     </div>
   );
 };
@@ -2218,7 +2231,7 @@ export default function IssuesView() {
         <Suspense
           fallback={
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-              <div className="flex items-center gap-2 text-primary">
+              <div className="flex items-center gap-2 text-yellow-500">
                 <FaSpinner className="animate-spin text-2xl" />
                 <span>Loading User Management Dashboard...</span>
               </div>

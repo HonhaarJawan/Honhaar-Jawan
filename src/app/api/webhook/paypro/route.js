@@ -653,7 +653,7 @@ export async function POST(req) {
               style='text-decoration: none'
             >
               <img
-                src='https://i.ibb.co/nMsL0RNP/Honhaar-Jawan-Logo.png'
+                src='https://i.ibb.co/qFD20pYV/logo.avif'
                 alt='Honhaar Jawan'
                 width='150'
                 style='
@@ -901,7 +901,7 @@ export async function POST(req) {
               style='text-decoration: none'
             >
               <img
-                src='https://i.ibb.co/nMsL0RNP/Honhaar-Jawan-Logo.png'
+                src='https://i.ibb.co/qFD20pYV/logo.avif'
                 alt='Honhaar Jawan'
                 width='150'
                 style='

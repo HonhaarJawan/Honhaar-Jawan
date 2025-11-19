@@ -18,7 +18,7 @@ import Copyright from "@/components/primary/Copyright";
 import { useToast } from "@/components/primary/Toast";
 import { ImSpinner } from "react-icons/im";
 
-const ForgotPassword = () => {
+const   ForgotPassword = () => {
   const router = useRouter();
   const { showToast } = useToast();
   const [email, setEmail] = useState("");
@@ -51,7 +51,7 @@ const ForgotPassword = () => {
       const templateSnap = await getDoc(templateRef);
       if (templateSnap.exists()) {
         const template = templateSnap.data().template;
-        await fetch("https://honhaarjawan.pk/api/sendMail", {
+        await fetch("/api/sendMail", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
