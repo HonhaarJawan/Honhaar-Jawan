@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { courses } from "@/Data/Data";
 import { FiMail, FiUser, FiPhone } from "react-icons/fi";
@@ -18,7 +18,6 @@ import {
   collection,
   doc,
   getDocs,
-  getDoc,
   query,
   serverTimestamp,
   setDoc,
@@ -226,7 +225,33 @@ const Client = () => {
     router.prefetch("/application-submitted");
   }, [router]);
 
-  // Form state
+  // ---------- NEW: keep course selections in separate states (minimal fields only)
+  const [selectedCourse1, setSelectedCourse1] = useState(null); // {id, name, lmsCourseId} | null
+  const [selectedCourse2, setSelectedCourse2] = useState(null);
+  const [selectedCourse3, setSelectedCourse3] = useState(null);
+
+  // Helper: keep only minimal fields (NO full course object in state)
+  const pickCourseFields = (c) =>
+    c ? { id: c.id, name: c.name, lmsCourseId: c.lmsCourseId } : null;
+
+  // Compute option lists so selected courses are hidden in the OTHER dropdowns
+  const takenIds = useMemo(
+    () =>
+      [selectedCourse1?.id, selectedCourse2?.id, selectedCourse3?.id].filter(
+        Boolean
+      ),
+    [selectedCourse1, selectedCourse2, selectedCourse3]
+  );
+
+  const availableOptions = (currentSelected) =>
+    courses.filter((o) => {
+      // Always allow the option if it's the one currently selected in THIS dropdown
+      if (currentSelected && currentSelected.id === o.id) return true;
+      // Otherwise hide it if already selected in another dropdown
+      return !takenIds.includes(o.id);
+    });
+
+  // Form state (kept as-is; we won't use formData.selectedCourses for selection anymore)
   const [formData, setFormData] = useState({
     fullName: "",
     fatherName: "",
@@ -240,7 +265,7 @@ const Client = () => {
     institute: "",
     fieldOfStudy: "",
     yearOfCompletion: "",
-    selectedCourses: [],
+    selectedCourses: [], // kept for compatibility, not used for storing full course data
     internetAvailability: "",
     permanentAddress: "",
     currentAddress: "",
@@ -434,9 +459,11 @@ const Client = () => {
     const rule = validationRules[fieldName];
     if (!rule) return null;
 
-    // Special handling for selectedCourses
+    // Special handling for selectedCourses (now driven by separate states)
     if (fieldName === "selectedCourses") {
-      if (rule.required && (!value || value.length === 0)) {
+      const anySelected =
+        !!selectedCourse1 || !!selectedCourse2 || !!selectedCourse3;
+      if (rule.required && !anySelected) {
         return rule.message || "This field is required";
       }
       return null;
@@ -523,9 +550,6 @@ const Client = () => {
 
     Object.keys(validationRules).forEach((fieldName) => {
       let fieldValue = formData[fieldName];
-      if (fieldName === "selectedCourses") {
-        fieldValue = formData.selectedCourses;
-      }
       const err = getFieldError(fieldName, fieldValue, formData);
       if (err) {
         newErrors[fieldName] = err;
@@ -558,40 +582,34 @@ const Client = () => {
     return result;
   };
 
-  // Course selection handler - FIXED to work with only selectedCourses array
-  const handleCourseChange = (courseData, index) => {
-    setFormData((prev) => {
-      const newCourses = [...(prev.selectedCourses || [])];
-
-      // Remove any existing course at this index
-      if (newCourses[index]) {
-        newCourses.splice(index, 1);
-      }
-
-      // Add new course at this index if provided
-      if (courseData) {
-        newCourses[index] = courseData;
-      }
-
-      // Remove any null/undefined values to clean up array
-      const filteredCourses = newCourses.filter(
-        (course) => course !== null && course !== undefined
-      );
-
-      const updatedFormData = {
-        ...prev,
-        selectedCourses: filteredCourses,
-      };
-
-      // Validate courses selection only if error exists already
-      if (errors.selectedCourses) {
-        validateField("selectedCourses", filteredCourses, updatedFormData);
-      }
-
-      return updatedFormData;
-    });
+  // ---------- NEW: individual course change handlers + duplicate protection
+  const onSelectCourse1 = (opt) => {
+    const picked = pickCourseFields(opt);
+    setSelectedCourse1(picked);
+    // If the same course was in other dropdowns, clear them
+    if (selectedCourse2?.id === picked.id) setSelectedCourse2(null);
+    if (selectedCourse3?.id === picked.id) setSelectedCourse3(null);
+    // Clear "at least one" error if present
+    if (errors.selectedCourses) validateField("selectedCourses", null);
   };
 
+  const onSelectCourse2 = (opt) => {
+    const picked = pickCourseFields(opt);
+    setSelectedCourse2(picked);
+    if (selectedCourse1?.id === picked.id) setSelectedCourse1(null);
+    if (selectedCourse3?.id === picked.id) setSelectedCourse3(null);
+    if (errors.selectedCourses) validateField("selectedCourses", null);
+  };
+
+  const onSelectCourse3 = (opt) => {
+    const picked = pickCourseFields(opt);
+    setSelectedCourse3(picked);
+    if (selectedCourse1?.id === picked.id) setSelectedCourse1(null);
+    if (selectedCourse2?.id === picked.id) setSelectedCourse2(null);
+    if (errors.selectedCourses) validateField("selectedCourses", null);
+  };
+
+  // (Kept for reference; not used to avoid storing full course data)
   const getCourseDetails = (courseName) => {
     const course = courses.find((c) => c.name === courseName);
     if (course) {
@@ -603,14 +621,6 @@ const Client = () => {
       };
     }
     return null;
-  };
-
-  // Get selected course data for each dropdown - FIXED to work with selectedCourses array
-  const getSelectedCourse = (index) => {
-    if (!formData.selectedCourses || formData.selectedCourses.length <= index) {
-      return null;
-    }
-    return formData.selectedCourses[index] || null;
   };
 
   // Form submission
@@ -626,12 +636,17 @@ const Client = () => {
       return;
     }
 
-    const selectedCourseObjects = formData.selectedCourses
-      .filter((course) => course !== null && course !== undefined)
-      .map((course) => ({
-        lmsCourseId: course.lmsCourseId,
-        name: course.name,
-      }));
+    // Build selected course objects from individual states (minimal fields)
+    const selectedFromStates = [
+      selectedCourse1,
+      selectedCourse2,
+      selectedCourse3,
+    ].filter(Boolean);
+
+    const selectedCourseObjects = selectedFromStates.map((course) => ({
+      lmsCourseId: course.lmsCourseId,
+      name: course.name,
+    }));
 
     if (selectedCourseObjects.length === 0) {
       setErrors((prev) => ({
@@ -702,6 +717,7 @@ const Client = () => {
         applicationSubmittedAt: serverTimestamp(),
         applicationApprovedAt: null,
         applicationApproved: false,
+        // Store only minimal course info (same shape as before in submission)
         selectedCourses: selectedCourseObjects,
         lastLogin: serverTimestamp(),
         role: "student",
@@ -1269,11 +1285,9 @@ const Client = () => {
                       career goals. We offer diverse programs
                     </p>
                     <CourseDropdown
-                      options={courses}
-                      selected={getSelectedCourse(0)}
-                      onChange={(courseData) =>
-                        handleCourseChange(courseData, 0)
-                      }
+                      options={availableOptions(selectedCourse1)}
+                      selected={selectedCourse1}
+                      onChange={onSelectCourse1}
                       placeholder="Select your primary course"
                       disabled={loading}
                       name="course1"
@@ -1299,11 +1313,9 @@ const Client = () => {
                       Students can enroll in up to three programs simultaneously
                     </p>
                     <CourseDropdown
-                      options={courses}
-                      selected={getSelectedCourse(1)}
-                      onChange={(courseData) =>
-                        handleCourseChange(courseData, 1)
-                      }
+                      options={availableOptions(selectedCourse2)}
+                      selected={selectedCourse2}
+                      onChange={onSelectCourse2}
                       placeholder="Select additional course"
                       disabled={loading}
                       name="course2"
@@ -1322,11 +1334,9 @@ const Client = () => {
                       </span>
                     </div>
                     <CourseDropdown
-                      options={courses}
-                      selected={getSelectedCourse(2)}
-                      onChange={(courseData) =>
-                        handleCourseChange(courseData, 2)
-                      }
+                      options={availableOptions(selectedCourse3)}
+                      selected={selectedCourse3}
+                      onChange={onSelectCourse3}
                       placeholder="Select additional course"
                       disabled={loading}
                       name="course3"
