@@ -18,7 +18,7 @@ import Copyright from "@/components/primary/Copyright";
 import { useToast } from "@/components/primary/Toast";
 import { ImSpinner } from "react-icons/im";
 
-const   ForgotPassword = () => {
+const ForgotPassword = () => {
   const router = useRouter();
   const { showToast } = useToast();
   const [email, setEmail] = useState("");
@@ -51,18 +51,24 @@ const   ForgotPassword = () => {
       const templateSnap = await getDoc(templateRef);
       if (templateSnap.exists()) {
         const template = templateSnap.data().template;
-        await fetch("/api/sendMail", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            to: email,
-            subject: "Account Password Reset - Honhaar Jawan",
-            htmlTemplate: template,
-            placeholders: {
-              resetCode,
-            },
-          }),
-        });
+        await fetch(
+          process.env.NODE_ENV === "development"
+            ? `http://localhost:3000/sendMail`
+            : process.env.NODE_ENV === "production" &&
+                "https://honhaarjawan.pk/sendMail",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              to: email,
+              subject: "Account Password Reset - Honhaar Jawan",
+              htmlTemplate: template,
+              placeholders: {
+                resetCode,
+              },
+            }),
+          }
+        );
       }
     } catch (emailError) {
       console.error("Failed to send password reset email:", emailError);

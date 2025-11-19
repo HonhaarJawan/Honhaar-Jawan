@@ -93,7 +93,10 @@ const Client = () => {
       };
 
       const emailResponse = await fetch(
-        "https://honhaarjawan.pk/api/sendMail",
+        process.env.NODE_ENV === "development"
+          ? `http://localhost:3000/sendMail`
+          : process.env.NODE_ENV === "production" &&
+              "https://honhaarjawan.pk/sendMail",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -552,46 +555,46 @@ const Client = () => {
                     <h4 className="font-semibold text-gray-900 mb-4 text-center">
                       Follow Honhaar Updates
                     </h4>
-                  <div className="justify-center flex items-center">
+                    <div className="justify-center flex items-center">
                       <div className="flex items-center justify-center  md:justify-start gap-2 mb-4">
-                      <a
-                        href="https://www.facebook.com/share/1DWTSyxfEA/?mibextid=wwXIfr"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Facebook"
-                        className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-yellow-500 bg-primary text-white transition-colors text-sm"
-                      >
-                        <FaFacebookF />
-                      </a>
-                      <a
-                        href="https://x.com/honhaarjawan"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Twitter / X"
-                        className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-yellow-500 bg-primary text-white transition-colors text-sm"
-                      >
-                        <FaX />
-                      </a>
-                      <a
-                        href="https://www.instagram.com/honhaarjawan/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Instagram"
-                        className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-yellow-500 bg-primary text-white transition-colors text-sm"
-                      >
-                        <FaInstagram />
-                      </a>
-                      <a
-                        href="https://www.youtube.com/channel/UCeqwiejxxw5K9i1i-Ebmiyw"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="YouTube"
-                        className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-yellow-500 bg-primary text-white transition-colors text-sm"
-                      >
-                        <FaYoutube />
-                      </a>
+                        <a
+                          href="https://www.facebook.com/share/1DWTSyxfEA/?mibextid=wwXIfr"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Facebook"
+                          className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-yellow-500 bg-primary text-white transition-colors text-sm"
+                        >
+                          <FaFacebookF />
+                        </a>
+                        <a
+                          href="https://x.com/honhaarjawan"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Twitter / X"
+                          className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-yellow-500 bg-primary text-white transition-colors text-sm"
+                        >
+                          <FaX />
+                        </a>
+                        <a
+                          href="https://www.instagram.com/honhaarjawan/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Instagram"
+                          className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-yellow-500 bg-primary text-white transition-colors text-sm"
+                        >
+                          <FaInstagram />
+                        </a>
+                        <a
+                          href="https://www.youtube.com/channel/UCeqwiejxxw5K9i1i-Ebmiyw"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="YouTube"
+                          className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center hover:bg-yellow-500 bg-primary text-white transition-colors text-sm"
+                        >
+                          <FaYoutube />
+                        </a>
+                      </div>
                     </div>
-                  </div>
                   </div>
 
                   {/* Map */}

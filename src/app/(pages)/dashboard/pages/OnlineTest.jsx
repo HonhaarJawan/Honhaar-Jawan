@@ -136,19 +136,25 @@ const OnlineTest = () => {
 
       // Step 1: Send all data (for email and list management) to Pabbly
       console.log("Sending data to Pabbly for email and list management...");
-      const pabblyResponse = await fetch("/api/pabbly-connect/test-fail-pass", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          // --- Data for List Management ---
-          user: user,
-          addListId: addListId,
-          removeListId: removeListId,
-          subject: subject,
-          htmlTemplate: template,
-          testMarks: testMarks,
-        }),
-      });
+      const pabblyResponse = await fetch(
+        process.env.NODE_ENV === "development"
+          ? `http://localhost:3000/api/pabbly-connect/test-fail-pass`
+          : process.env.NODE_ENV === "production" &&
+              "https://honhaarjawan.pk/api/pabbly-connect/test-fail-pass",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            // --- Data for List Management ---
+            user: user,
+            addListId: addListId,
+            removeListId: removeListId,
+            subject: subject,
+            htmlTemplate: template,
+            testMarks: testMarks,
+          }),
+        }
+      );
 
       if (!pabblyResponse.ok) {
         // Optional: Get more error details from the response body

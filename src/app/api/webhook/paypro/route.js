@@ -213,21 +213,27 @@ const sendInitialEnrollmentEmail = async (userData) => {
     const templateSnap = await getDoc(templateRef);
     if (templateSnap.exists()) {
       const template = templateSnap.data().template;
-      await fetch(`/api/sendMail`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: userData.email,
-          subject: "Your Admission is Approved! Access Your LMS Now",
-          htmlTemplate: template,
-          placeholders: {
-            fullName: userData.fullName,
-            email: userData.email,
-            password: userData.password,
-            companyName: "Honhaar Jawan",
-          },
-        }),
-      });
+      await fetch(
+        process.env.NODE_ENV === "development"
+          ? `http://localhost:3000/sendMail`
+          : process.env.NODE_ENV === "production" &&
+              "https://honhaarjawan.pk/sendMail",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to: userData.email,
+            subject: "Your Admission is Approved! Access Your LMS Now",
+            htmlTemplate: template,
+            placeholders: {
+              fullName: userData.fullName,
+              email: userData.email,
+              password: userData.password,
+              companyName: "Honhaar Jawan",
+            },
+          }),
+        }
+      );
       console.log(
         `Initial enrollment email sent successfully to ${userData.email}`
       );
@@ -245,20 +251,26 @@ const sendAdditionalEnrollmentEmail = async (userData, addedCourses) => {
     const templateSnap = await getDoc(templateRef);
     if (templateSnap.exists()) {
       const template = templateSnap.data().template;
-      await fetch(`/api/sendMail`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: userData.email,
-          subject: "Your Course Has Been Successfully Added!",
-          htmlTemplate: template,
-          placeholders: {
-            fullName: userData.fullName,
-            added_courses: addedCourses,
-            companyName: "Honhaar Jawan",
-          },
-        }),
-      });
+      await fetch(
+        process.env.NODE_ENV === "development"
+          ? `http://localhost:3000/sendMail`
+          : process.env.NODE_ENV === "production" &&
+              "https://honhaarjawan.pk/sendMail",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to: userData.email,
+            subject: "Your Course Has Been Successfully Added!",
+            htmlTemplate: template,
+            placeholders: {
+              fullName: userData.fullName,
+              added_courses: addedCourses,
+              companyName: "Honhaar Jawan",
+            },
+          }),
+        }
+      );
       console.log(
         `Additional enrollment email sent successfully to ${userData.email}`
       );
@@ -276,22 +288,28 @@ const sendCertificateEmail = async (certificateData, completionDate) => {
     const templateSnap = await getDoc(templateRef);
     if (templateSnap.exists()) {
       const template = templateSnap.data().template;
-      await fetch(`/api/sendMail`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: certificateData.email,
-          subject: "Honhaar Jawan - Certificate HardCopy Fee Paid",
-          htmlTemplate: template,
-          placeholders: {
-            fullName: certificateData.fullName,
-            course_name: certificateData.name,
-            completion_date: completionDate,
-            certificate_fee: "2500 PKR",
-            companyName: "Honhaar Jawan",
-          },
-        }),
-      });
+      await fetch(
+        process.env.NODE_ENV === "development"
+          ? `http://localhost:3000/sendMail`
+          : process.env.NODE_ENV === "production" &&
+              "https://honhaarjawan.pk/sendMail",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to: certificateData.email,
+            subject: "Honhaar Jawan - Certificate HardCopy Fee Paid",
+            htmlTemplate: template,
+            placeholders: {
+              fullName: certificateData.fullName,
+              course_name: certificateData.name,
+              completion_date: completionDate,
+              certificate_fee: "2500 PKR",
+              companyName: "Honhaar Jawan",
+            },
+          }),
+        }
+      );
       console.log(
         `Certificate email sent successfully to ${certificateData.email}`
       );
@@ -1087,7 +1105,10 @@ export async function POST(req) {
 
       try {
         const pabblyResponse = await fetch(
-          `http://localhost:3000/api/pabbly-connect/initial-enrollment`,
+          process.env.NODE_ENV === "development"
+            ? `http://localhost:3000/api/pabbly-connect/initial-enrollment`
+            : process.env.NODE_ENV === "production" &&
+                "https://honhaarjawan.pk/api/pabbly-connect/initial-enrollment",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

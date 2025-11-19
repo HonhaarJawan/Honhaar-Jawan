@@ -1333,7 +1333,10 @@ const EmailTemplateList = () => {
       setEmailErrors({});
       try {
         const email = selectedEmail;
-        const response = await fetch("/api/sendMail", {
+        const response = await fetch( process.env.NODE_ENV === "development"
+            ? `http://localhost:3000/sendMail`
+            : process.env.NODE_ENV === "production" &&
+                "https://honhaarjawan.pk/sendMail", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -1500,7 +1503,10 @@ const EmailTemplateList = () => {
     }
     setSendingTestEmail(true);
     try {
-      const response = await fetch("/api/sendMail", {
+      const response = await fetch(process.env.NODE_ENV === "development"
+            ? `http://localhost:3000/sendMail`
+            : process.env.NODE_ENV === "production" &&
+                "https://honhaarjawan.pk/sendMail", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

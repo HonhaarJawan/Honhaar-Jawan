@@ -111,22 +111,28 @@ const ApplicationSubmitted = () => {
     if (templateSnap.exists()) {
       const template = templateSnap.data().template;
 
-      await fetch("/api/sendMail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: email,
-          subject: "Resend: Your Login Credentials",
-          htmlTemplate: template,
-          placeholders: {
-            fullName: user.fullName,
-            email: email,
-            formNo: formNo,
-            companyName: "Honhaar Jawan",
-            password: password,
-          },
-        }),
-      });
+      await fetch(
+        process.env.NODE_ENV === "development"
+          ? `http://localhost:3000/sendMail`
+          : process.env.NODE_ENV === "production" &&
+              "https://honhaarjawan.pk/sendMail",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to: email,
+            subject: "Resend: Your Login Credentials",
+            htmlTemplate: template,
+            placeholders: {
+              fullName: user.fullName,
+              email: email,
+              formNo: formNo,
+              companyName: "Honhaar Jawan",
+              password: password,
+            },
+          }),
+        }
+      );
 
       // Use toast hook with 30-second duration
       showToast(

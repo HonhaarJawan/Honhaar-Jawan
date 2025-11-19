@@ -122,11 +122,17 @@ const GeneratePSIDButton = ({ user, onUpdateSuccess }) => {
       },
     };
 
-    const response = await fetch("https://honhaarjawan.pk/api/sendMail", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(emailData),
-    });
+    const response = await fetch(
+      process.env.NODE_ENV === "development"
+        ? `http://localhost:3000/sendMail`
+        : process.env.NODE_ENV === "production" &&
+            "https://honhaarjawan.pk/sendMail",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(emailData),
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
