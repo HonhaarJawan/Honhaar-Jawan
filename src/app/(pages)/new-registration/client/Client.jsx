@@ -644,7 +644,7 @@ const Client = () => {
     ].filter(Boolean);
 
     const selectedCourseObjects = selectedFromStates.map((course) => ({
-      courseId: course.id,
+      id: course.id,
       lmsCourseId: course.lmsCourseId,
       name: course.name,
     }));
