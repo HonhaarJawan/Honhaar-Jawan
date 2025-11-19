@@ -114,17 +114,11 @@ const ContactModal = () => {
         },
       };
 
-      const emailResponse = await fetch(
-        process.env.NODE_ENV === "development"
-          ? `http://localhost:3000/api/sendMail`
-          : process.env.NODE_ENV === "production" &&
-              "https://honhaarjawan.pk/api/sendMail",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(emailData),
-        }
-      );
+      const emailResponse = await fetch(`/api/sendMail`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(emailData),
+      });
 
       if (!emailResponse.ok) {
         const errorData = await emailResponse.json();

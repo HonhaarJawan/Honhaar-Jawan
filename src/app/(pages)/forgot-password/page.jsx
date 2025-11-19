@@ -52,10 +52,7 @@ const ForgotPassword = () => {
       if (templateSnap.exists()) {
         const template = templateSnap.data().template;
         await fetch(
-          process.env.NODE_ENV === "development"
-            ? `http://localhost:3000/api/sendMail`
-            : process.env.NODE_ENV === "production" &&
-                "https://honhaarjawan.pk/api/sendMail",
+         `/api/sendMail`
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

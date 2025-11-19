@@ -221,7 +221,7 @@ const VerifyEmailComponent = ({ mode, oobCode }) => {
       const { template } = docSnap.data();
       
       // Send email
-      await axios.post("https://honhaarjawan.pk/api/sendMail", {
+      await axios.post(`/api/sendMail`, {
         to: email,
         subject: "Email Verified Successfully!",
         placeholders: {

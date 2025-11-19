@@ -50,7 +50,7 @@ const CourseDetails = () => {
   const courseUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}/courses/details/${id}`
-      : `http://honhaarjawan.pk/courses/details/${id}`;
+      : `https://honhaarjawan.pk/courses/details/${id}`;
 
   const shareText = `Check out this amazing course: ${
     course?.name || "Course"
