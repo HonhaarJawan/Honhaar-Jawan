@@ -260,7 +260,7 @@ const ChangePassword = () => {
       <Navbar />
       <main className="flex-grow flex items-center justify-center px-4 py-8">
         <div className="max-w-md w-full bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="bg-blue-600 px-6 py-4">
+          <div className="bg-second px-6 py-4">
             <h1 className="text-xl font-bold text-white">
               Reset Your Password
             </h1>
@@ -375,7 +375,7 @@ const ChangePassword = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  className="w-full bg-sec2 text-white py-2 px-4 rounded-md hover:bg-primary  disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   {loading ? (
                     <div className="flex items-center gap-2">
