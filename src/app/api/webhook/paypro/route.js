@@ -215,9 +215,9 @@ const sendInitialEnrollmentEmail = async (userData) => {
       const template = templateSnap.data().template;
       await fetch(
         process.env.NODE_ENV === "development"
-          ? `http://localhost:3000/sendMail`
+          ? `http://localhost:3000/api/sendMail`
           : process.env.NODE_ENV === "production" &&
-              "https://honhaarjawan.pk/sendMail",
+              "https://honhaarjawan.pk/api/sendMail",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -253,9 +253,9 @@ const sendAdditionalEnrollmentEmail = async (userData, addedCourses) => {
       const template = templateSnap.data().template;
       await fetch(
         process.env.NODE_ENV === "development"
-          ? `http://localhost:3000/sendMail`
+          ? `http://localhost:3000/api/sendMail`
           : process.env.NODE_ENV === "production" &&
-              "https://honhaarjawan.pk/sendMail",
+              "https://honhaarjawan.pk/api/sendMail",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -290,9 +290,9 @@ const sendCertificateEmail = async (certificateData, completionDate) => {
       const template = templateSnap.data().template;
       await fetch(
         process.env.NODE_ENV === "development"
-          ? `http://localhost:3000/sendMail`
+          ? `http://localhost:3000/api/sendMail`
           : process.env.NODE_ENV === "production" &&
-              "https://honhaarjawan.pk/sendMail",
+              "https://honhaarjawan.pk/api/sendMail",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

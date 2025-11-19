@@ -94,9 +94,9 @@ const Client = () => {
 
       const emailResponse = await fetch(
         process.env.NODE_ENV === "development"
-          ? `http://localhost:3000/sendMail`
+          ? `http://localhost:3000/api/sendMail`
           : process.env.NODE_ENV === "production" &&
-              "https://honhaarjawan.pk/sendMail",
+              "https://honhaarjawan.pk/api/sendMail",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

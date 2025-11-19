@@ -1333,24 +1333,27 @@ const EmailTemplateList = () => {
       setEmailErrors({});
       try {
         const email = selectedEmail;
-        const response = await fetch( process.env.NODE_ENV === "development"
-            ? `http://localhost:3000/sendMail`
+        const response = await fetch(
+          process.env.NODE_ENV === "development"
+            ? `http://localhost:3000/api/sendMail`
             : process.env.NODE_ENV === "production" &&
-                "https://honhaarjawan.pk/sendMail", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            to: email,
-            subject: template.subject || "Test Email",
-            htmlTemplate: template.template,
-            placeholders: {
-              fullName: testEmailName,
-              companyName: companyName,
+                "https://honhaarjawan.pk/api/sendMail",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
             },
-          }),
-        });
+            body: JSON.stringify({
+              to: email,
+              subject: template.subject || "Test Email",
+              htmlTemplate: template.template,
+              placeholders: {
+                fullName: testEmailName,
+                companyName: companyName,
+              },
+            }),
+          }
+        );
         const data = await response.json();
         if (response.ok && data.success) {
           setEmailStatus({ [email]: "success" });
@@ -1503,21 +1506,24 @@ const EmailTemplateList = () => {
     }
     setSendingTestEmail(true);
     try {
-      const response = await fetch(process.env.NODE_ENV === "development"
-            ? `http://localhost:3000/sendMail`
-            : process.env.NODE_ENV === "production" &&
-                "https://honhaarjawan.pk/sendMail", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: composeRecipients,
-          subject: composeSubject,
-          htmlTemplate: composeContent,
-          placeholders: placeholdersObj,
-        }),
-      });
+      const response = await fetch(
+        process.env.NODE_ENV === "development"
+          ? `http://localhost:3000/api/sendMail`
+          : process.env.NODE_ENV === "production" &&
+              "https://honhaarjawan.pk/api/sendMail",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            to: composeRecipients,
+            subject: composeSubject,
+            htmlTemplate: composeContent,
+            placeholders: placeholdersObj,
+          }),
+        }
+      );
       const data = await response.json();
       if (response.ok && data.success) {
         showToast(
