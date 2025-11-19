@@ -1,0 +1,8 @@
+# public/robots.txt
+ 
+User-agent: *
+Allow: /
+Disallow: /private/
+Disallow: /admin/
+ 
+Sitemap: https://honhaarjawan.pk/sitemap.xml

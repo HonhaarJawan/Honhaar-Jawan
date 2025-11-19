@@ -1,0 +1,377 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: var(--font-jost), sans-serif;
+}
+.f2 {
+  font-family: "Mulish", sans-serif;
+}
+  /* global scroll bar */
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 8px; /* scrollbar width */
+  }
+
+::-webkit-scrollbar-track {
+  background: transparent; /* removed track color */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4caf50; /* scrollbar handle */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #388e3c;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin; /* auto | thin | none */
+  scrollbar-color: #4caf50 transparent; /* thumb color track transparent */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* Global Notification Styles */
+.notify-success {
+  background: #f0fdf4;
+  border-left: 4px solid #10b981;
+  color: #065f46;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loader {
+  width: 50px;
+  --b: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  padding: 1px;
+  background: conic-gradient(#0000 10%, #000000) content-box;
+  -webkit-mask: repeating-conic-gradient(
+      #0000 0deg,
+      #000 1deg 20deg,
+      #0000 21deg 36deg
+    ),
+    radial-gradient(
+      farthest-side,
+      #0000 calc(100% - var(--b) - 1px),
+      #000 calc(100% - var(--b))
+    );
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+  animation: l4 1s infinite steps(10);
+}
+@keyframes l4 {
+  to {
+    transform: rotate(1turn);
+  }
+}
+.custom-toast {
+  position: relative;
+  overflow: hidden;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.custom-toast::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  opacity: 0.5;
+  z-index: -1;
+}
+
+/* Define your toast type colors */
+.custom-toast-success {
+  background-color: green;
+}
+.custom-toast-error {
+  background-color: red;
+}
+.custom-toast-warning {
+  background-color: orange;
+}
+.custom-toast-info {
+  background-color: blue;
+}
+
+.notify-error {
+  background: #fef2f2;
+  border-left: 4px solid #ef4444;
+  color: #991b1b;
+}
+
+.notify-warning {
+  background: #fffbeb;
+  border-left: 4px solid #f59e0b;
+  color: #92400e;
+}
+
+.notify-info {
+  background: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  color: #1e40af;
+}
+
+/* Remove scrollbar globally where needed */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.challan-font {
+  font-family: "IBM Plex Mono";
+}
+
+.slider-tape {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.slider-content {
+  display: inline-block;
+  animation: slide 20s linear infinite;
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+
+/* Add this CSS to your global styles */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto auto;
+  gap: 20px;
+}
+
+.dashboard-grid-item {
+  border-radius: 12px;
+}
+
+.overview-card {
+  grid-column: span 1;
+  height: 200px;
+}
+
+.time-selector-card {
+  grid-column: span 4;
+  height: auto;
+}
+
+.section-header {
+  grid-column: span 4;
+  height: auto;
+}
+
+.daily-card {
+  grid-column: span 1;
+  height: 200px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .overview-card,
+  .daily-card {
+    grid-column: span 1;
+  }
+
+  .time-selector-card,
+  .section-header {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-card,
+  .daily-card,
+  .time-selector-card,
+  .section-header {
+    grid-column: span 1;
+  }
+}
+@keyframes circle-keys {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes dot-keys {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes outline-keys {
+  0% {
+    transform: scale(0);
+    outline: solid 20px var(--color);
+    outline-offset: 0;
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    outline: solid 0 transparent;
+    outline-offset: 20px;
+    opacity: 0;
+  }
+}
+
+
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.cloud-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* TOAST CSS */
+.custom-toast {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  max-width: 300px;
+  padding: 15px 20px;
+  color: #fff;
+  border-radius: 2px;
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  justify-content: space-between;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  animation: fade-in 0.3s ease-out;
+  z-index: 1000;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+/* Updated color variants with muted tones */
+.custom-toast-info {
+  background-color: rgba(
+    45,
+    156,
+    219,
+    0.85
+  ); /* Original blue with transparency */
+}
+
+.custom-toast-warning {
+  background-color: rgba(210, 168, 80, 0.85); /* Desaturated gold/orange */
+}
+
+.custom-toast-success {
+  background-color: rgba(92, 184, 92, 0.85); /* Muted green */
+}
+
+.custom-toast-error {
+  background-color: rgba(199, 84, 80, 0.85); /* Desaturated red */
+}
+
+.custom-toast-close {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0;
+  opacity: 0.8;
+}
+
+.custom-toast-close:hover {
+  opacity: 1;
+}
+
+/* Fade animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Class to apply for fade out */
+.custom-toast.fade-out {
+  animation: fade-out 0.3s ease-out;
+  animation-fill-mode: forwards;
+}
