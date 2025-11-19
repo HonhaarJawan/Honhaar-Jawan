@@ -52,7 +52,7 @@ const ForgotPassword = () => {
       if (templateSnap.exists()) {
         const template = templateSnap.data().template;
         await fetch(
-         `/api/sendMail`
+         `/api/sendMail`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
