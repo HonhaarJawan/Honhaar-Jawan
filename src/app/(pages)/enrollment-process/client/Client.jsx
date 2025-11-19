@@ -92,7 +92,7 @@ const Client = () => {
 
   return (
     <div className="flex flex-col justify-center overflow-x-hidden items-center w-full px-4 mt-4">
-      {/* Video Section */}
+      {/* Video Section
       <div className="relative w-full max-w-3xl rounded-xl overflow-hidden shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50 p-2">
         <div className="w-full h-0 pb-[56.25%] relative transition-transform duration-500 ease-in-out ">
           <iframe
@@ -110,7 +110,7 @@ const Client = () => {
       </h1>
       <p className="text-gray-500 mt-2 text-lg text-center max-w-2xl">
         Learn how to easily apply using our step-by-step video guide.
-      </p>
+      </p> */}
 
       {/* Steps Section */}
       <div className="w-full max-w-7xl mt-16 mb-5">
