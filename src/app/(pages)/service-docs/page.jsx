@@ -13,7 +13,6 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import { ImSpinner } from "react-icons/im";
-import axios from "axios";
 
 export default function ServiceDocs() {
   const [files, setFiles] = useState([]);
@@ -45,10 +44,12 @@ export default function ServiceDocs() {
 
   const checkServer = async () => {
     try {
-      const res = await axios.get(
+      const res = await fetch(
         "https://honhaarjawan.pk/api/webhook/optimize/check-servers-availible"
       );
-      setServerStatus(res.data);
+      if (!res.ok) throw new Error("Server check failed");
+      const data = await res.json();
+      setServerStatus(data);
       showToast("Server is online!", "success");
     } catch (err) {
       setServerStatus({ available: false });
@@ -74,39 +75,44 @@ export default function ServiceDocs() {
     if (settings.height) formData.append("height", settings.height);
 
     try {
-      const response = await axios.post(
+      const response = await fetch(
         "https://honhaarjawan.pk/api/webhook/optimize",
-        formData,
         {
-          responseType: "blob",
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          method: "POST",
+          body: formData,
         }
       );
 
+      if (!response.ok) throw new Error("Optimization failed");
+
       const stats = {
-        originalSize: response.headers["x-original-size"],
-        optimizedSize: response.headers["x-optimized-size"],
-        savedBytes: response.headers["x-saved-bytes"],
-        ratio: response.headers["x-compression-ratio"],
+        originalSize: response.headers.get("x-original-size"),
+        optimizedSize: response.headers.get("x-optimized-size"),
+        savedBytes: response.headers.get("x-saved-bytes"),
+        ratio: response.headers.get("x-compression-ratio"),
       };
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      const contentDisposition = response.headers["content-disposition"];
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const contentDisposition = response.headers.get("content-disposition");
       let fileName = "optimized_image";
       if (contentDisposition) {
-        const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/);
-        if (fileNameMatch && fileNameMatch.length === 2)
+        // Improved regex to handle quoted filenames correctly
+        const fileNameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (fileNameMatch && fileNameMatch.length === 2) {
           fileName = fileNameMatch[1];
+        }
       }
+
+      const link = document.createElement("a");
+      link.href = url;
       link.setAttribute("download", fileName);
 
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
 
       setResult({ stats, fileName });
       showToast("Optimization successful! Download started.", "success");
