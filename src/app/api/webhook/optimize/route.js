@@ -2,6 +2,17 @@ import { NextResponse } from "next/server";
 import sharp from "sharp";
 import JSZip from "jszip";
 
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
+}
+
 // Helper to parse boolean/number from formData
 const parseParam = (val, type = "number", defaultVal) => {
   if (val === null || val === undefined) return defaultVal;
@@ -101,6 +112,8 @@ export async function POST(req) {
       "Access-Control-Expose-Headers",
       "X-Original-Size, X-Optimized-Size, X-Saved-Bytes, X-Compression-Ratio, Content-Disposition"
     );
+    headers.set("Access-Control-Allow-Origin", "*");
+    headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
 
     // Return single file or ZIP
     if (optimizedFiles.length === 1) {
