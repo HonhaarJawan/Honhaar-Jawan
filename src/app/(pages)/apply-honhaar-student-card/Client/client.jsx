@@ -4,8 +4,7 @@ import React, { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/primary/Navbar";
 import PageInfo from "@/components/PageInfo";
-import { firestore } from "@/Backend/Firebase";
-import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
+
 import { courses } from "@/Data/Data";
 import axios from "axios";
 import Copyright from "@/components/primary/Copyright";
@@ -241,208 +240,94 @@ const ApplyScholarContent = () => {
     setTrackCourse(courseData);
   };
 
-  const generateVerificationCode = () => {
-    return Math.floor(100000000000 + Math.random() * 900000000000).toString();
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (
+      !formData.email ||
+      !formData.cnic ||
+      !formData.course ||
+      !formData.agreeTerms
+    ) {
+      showToast(
+        "Please fill in all required fields and agree to terms",
+        "warning"
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
-      if (
-        !formData.email ||
-        !formData.cnic ||
-        !formData.course ||
-        !formData.agreeTerms
-      ) {
-        showToast(
-          "Please fill in all required fields and agree to terms",
-          "warning"
-        );
-        return;
-      }
+      // Call the student card API to create the application
+      const response = await axios.post("/api/student-card", {
+        operation: "create",
+        email: formData.email,
+        cnic: formData.cnic,
+        courseId: formData.course,
+        fullName: formData.fullName,
+        mobile: formData.mobile,
+        rollNo: formData.rollNo,
+        challanNo: formData.challanNo,
+        minCompletionPercentage: REQUIRED_COMPLETION_PERCENTAGE,
+      });
 
-      setIsSubmitting(true);
-
-      try {
-        // Check if user exists in Firestore
-        const userQuery = query(
-          collection(firestore, "users"),
-          where("email", "==", formData.email.toLowerCase())
-        );
-        const querySnapshot = await getDocs(userQuery);
-
-        if (querySnapshot.empty) {
-          showToast("No user found with this email", "error");
-          setIsSubmitting(false);
-          return;
-        }
-
-        const userDoc = querySnapshot.docs[0];
-        const userData = userDoc.data();
-
-        if (userData.cnic !== formData.cnic) {
-          showToast("CNIC does not match our records", "error");
-          setIsSubmitting(false);
-          return;
-        }
-
-        if (!userData.user_lms_id) {
-          showToast(
-            "Your account is missing LMS information. Please contact support.",
-            "error"
-          );
-          setIsSubmitting(false);
-          return;
-        }
-
-        const courseDetails = courses.find(
-          (c) => c.id.toString() === formData.course.toString()
-        );
-        if (!courseDetails) {
-          showToast("The selected course is not valid", "error");
-          setIsSubmitting(false);
-          return;
-        }
-
-        // Check course completion percentage (set to 0% for testing)
-        const teachableResponse = await axios.get(
-          `https://developers.teachable.com/v1/users/${userData.user_lms_id}`,
-          {
-            headers: {
-              accept: "application/json",
-              apiKey: process.env.NEXT_PUBLIC_TEACHABLE_API_KEY,
-            },
-          }
-        );
-
-        const teachableCourse = teachableResponse.data.courses.find(
-          (c) => c.course_id.toString() === courseDetails.lmsCourseId.toString()
-        );
-
-        if (!teachableCourse) {
-          showToast(
-            "You are not enrolled in this course on the learning platform",
-            "warning"
-          );
-          setIsSubmitting(false);
-          return;
-        }
-
-        // Check completion percentage - using 0% for testing
-        if (teachableCourse.percent_complete < REQUIRED_COMPLETION_PERCENTAGE) {
-          showToast(
-            `Your course is only ${teachableCourse.percent_complete}% complete. Please complete at least ${REQUIRED_COMPLETION_PERCENTAGE}% to be eligible.`,
-            "warning"
-          );
-          setIsSubmitting(false);
-          return;
-        }
-
-        // Check if honhaar already applied for this course
-        const existinghonhaarQuery = query(
-          collection(firestore, "honhaarCardApplications"),
-          where("email", "==", formData.email.toLowerCase()),
-          where("courseId", "==", courseDetails.id.toString())
-        );
-        const existingSnapshot = await getDocs(existinghonhaarQuery);
-
-        if (!existingSnapshot.empty) {
-          const existingApp = existingSnapshot.docs[0].data();
-          router.push(`/honhaar-card/${existingApp.verificationCode}`);
-          showToast(
-            "You have already applied for honhaar for this course. Redirecting...",
-            "info"
-          );
-          setIsSubmitting(false);
-          return;
-        }
-
-        // Generate verification code and store application
-        const verificationCode = generateVerificationCode();
-        const honhaarData = {
-          verificationCode,
-          fullName:
-            formData.fullName ||
-            `${userData.firstName} ${userData.lastName || ""}`.trim(),
-          email: formData.email.toLowerCase(),
-          cnic: formData.cnic,
-          mobile: formData.mobile,
-          courseName: courseDetails.name,
-          courseId: courseDetails.id.toString(),
-          lmsCourseId: courseDetails.lmsCourseId,
-          userId: userData.uid,
-          rollNo: formData.rollNo,
-          challanNo: formData.challanNo,
-          appliedAt: new Date().toISOString(),
-          status: "pending",
-          completionPercentage: teachableCourse.percent_complete,
-          requiredPercentage: REQUIRED_COMPLETION_PERCENTAGE,
-        };
-
-        // Store in Firestore
-        await addDoc(
-          collection(firestore, "honhaarCardApplications"),
-          honhaarData
-        );
-
-        // Redirect to honhaar code page
+      if (response.data.application) {
+        const { verificationCode } = response.data.application;
         router.push(`/honhaar-card/${verificationCode}`);
-        showToast("honhaar application submitted successfully!", "success");
-      } catch (error) {
-        console.error("honhaar application error:", error);
-        const errorMessage =
-          error.response?.data?.message || error.message.includes("network")
-            ? "Network error. Please check your internet connection."
-            : "Application failed. Please try again.";
-
-        showToast(`Application Failed: ${errorMessage}`, "error");
-      } finally {
-        setIsSubmitting(false);
+        showToast(
+          response.data.message || "Application submitted successfully!",
+          "success"
+        );
       }
     } catch (error) {
-      showToast(
-        "An error occurred during form submission. Please try again.",
-        "error"
-      );
+      console.error("Student card application error:", error);
+      const errorMessage =
+        error.response?.data?.error ||
+        error.message ||
+        "Application failed. Please try again.";
+      showToast(`Application Failed: ${errorMessage}`, "error");
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleTrackApplication = async (e) => {
     e.preventDefault();
-    setIsTracking(true);
 
     if (!trackEmail || !trackCourse) {
       showToast("Please provide both email and course name", "warning");
-      setIsTracking(false);
       return;
     }
 
-    try {
-      const honhaarQuery = query(
-        collection(firestore, "honhaarCardApplications"),
-        where("email", "==", trackEmail.trim().toLowerCase()),
-        where("courseId", "==", trackCourse.id.toString())
-      );
-      const querySnapshot = await getDocs(honhaarQuery);
+    setIsTracking(true);
 
-      if (querySnapshot.empty) {
+    try {
+      // Call the student card API to track the application
+      const response = await axios.post("/api/student-card", {
+        operation: "track",
+        email: trackEmail.trim(),
+        courseId: trackCourse.id.toString(),
+      });
+
+      if (response.data.applications && response.data.applications.length > 0) {
+        const application = response.data.applications[0];
+        router.push(`/honhaar-card/${application.verificationCode}`);
+        showToast("Application found! Redirecting...", "success");
+      } else {
         showToast(
-          "No honhaar card application found matching your criteria",
+          response.data.message ||
+            "No student card application found matching your criteria",
           "warning"
         );
-        setIsTracking(false);
-        return;
       }
-
-      const applicationDoc = querySnapshot.docs[0];
-      const applicationData = applicationDoc.data();
-
-      router.push(`/honhaar-card/${applicationData.verificationCode}`);
-      showToast("Application found! Redirecting...", "success");
-    } catch (err) {
-      showToast(`Tracking error: ${err.message}`, "error");
+    } catch (error) {
+      console.error("Tracking error:", error);
+      const errorMessage =
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to track application. Please try again.";
+      showToast(`Tracking error: ${errorMessage}`, "error");
     } finally {
       setIsTracking(false);
     }

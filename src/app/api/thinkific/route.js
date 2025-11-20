@@ -2,7 +2,8 @@
 import { NextResponse } from "next/server";
 
 const NEXT_PUBLIC_THINKIFIC_API_KEY = process.env.NEXT_PUBLIC_THINKIFIC_API_KEY;
-const NEXT_PUBLIC_THINKIFIC_SUBDOMAIN = process.env.NEXT_PUBLIC_THINKIFIC_SUBDOMAIN;
+const NEXT_PUBLIC_THINKIFIC_SUBDOMAIN =
+  process.env.NEXT_PUBLIC_THINKIFIC_SUBDOMAIN;
 const THINKIFIC_API_BASE_URL = `https://api.thinkific.com/api/2`;
 
 export async function GET(request) {

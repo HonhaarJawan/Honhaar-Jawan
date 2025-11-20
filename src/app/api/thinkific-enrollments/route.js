@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 
 const API_ENDPOINT = "https://api.thinkific.com/api/public/v1";
 const NEXT_PUBLIC_THINKIFIC_API_KEY = process.env.NEXT_PUBLIC_THINKIFIC_API_KEY;
-const NEXT_PUBLIC_THINKIFIC_SUBDOMAIN = process.env.NEXT_PUBLIC_THINKIFIC_SUBDOMAIN;
+const NEXT_PUBLIC_THINKIFIC_SUBDOMAIN =
+  process.env.NEXT_PUBLIC_THINKIFIC_SUBDOMAIN;
 
 const THINKIFIC_HEADERS = {
   "X-Auth-API-Key": NEXT_PUBLIC_THINKIFIC_API_KEY,
@@ -65,7 +66,11 @@ export async function POST(req) {
         headers: THINKIFIC_HEADERS,
       };
 
-      if (!API_ENDPOINT || !NEXT_PUBLIC_THINKIFIC_API_KEY || !NEXT_PUBLIC_THINKIFIC_SUBDOMAIN) {
+      if (
+        !API_ENDPOINT ||
+        !NEXT_PUBLIC_THINKIFIC_API_KEY ||
+        !NEXT_PUBLIC_THINKIFIC_SUBDOMAIN
+      ) {
         console.error(
           "Thinkific Enrollments API: Missing Thinkific API environment variables."
         );

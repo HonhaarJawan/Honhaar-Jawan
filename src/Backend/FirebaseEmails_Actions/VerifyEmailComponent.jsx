@@ -20,7 +20,8 @@ import useAuthStore from "@/store/useAuthStore";
 
 const ACELLE_API_BASE_URL = "https://mailer2.ansolutions.pk/api/v1";
 const ACELLE_API_TOKEN = process.env.NEXT_PUBLIC_EMAILING_APITOKEN;
-const ACELLE_LIST_UID = process.env.NEXT_PUBLIC_EMAILING_PROFILE_REMINDER_LISTUID;
+const ACELLE_LIST_UID =
+  process.env.NEXT_PUBLIC_EMAILING_PROFILE_REMINDER_LISTUID;
 
 // Create API client instances outside component
 const thinkificApi = axios.create({
@@ -66,7 +67,7 @@ const VerifyEmailComponent = ({ mode, oobCode }) => {
         // 1. Decode action code to get email (keep this as first step for security)
         const actionCodeInfo = await checkActionCode(auth, oobCode);
         const userEmail = actionCodeInfo?.data?.email;
-        
+
         if (!userEmail) {
           throw new Error("Invalid verification link");
         }
@@ -75,10 +76,10 @@ const VerifyEmailComponent = ({ mode, oobCode }) => {
         const usersRef = collection(firestore, "users");
         const q = query(usersRef, where("email", "==", userEmail));
         const querySnapshot = await getDocs(q);
-        
+
         let userDocRef;
         let userData;
-        
+
         if (querySnapshot.empty) {
           // User doesn't exist yet - this is unusual for email verification
           // but handle gracefully
@@ -96,13 +97,20 @@ const VerifyEmailComponent = ({ mode, oobCode }) => {
         // Validate user data has required fields
         const { email, password, firstName, lastName } = userData;
         if (!email || !password || !firstName || !lastName) {
-          throw new Error("User profile is incomplete. Please complete registration first.");
+          throw new Error(
+            "User profile is incomplete. Please complete registration first."
+          );
         }
 
         // 3. Process Thinkific and Acelle in parallel for speed
         const [thinkificUserId, acelleSubscriberId] = await Promise.all([
           getOrCreateThinkificUser(email, password, firstName, lastName),
-          getOrCreateAcelleSubscriber(email, firstName, lastName, userData.subscriberId)
+          getOrCreateAcelleSubscriber(
+            email,
+            firstName,
+            lastName,
+            userData.subscriberId
+          ),
         ]);
 
         // 4. Update user document with all new data in a single write
@@ -118,7 +126,7 @@ const VerifyEmailComponent = ({ mode, oobCode }) => {
         // Update Firestore and send confirmation email in parallel
         await Promise.all([
           setDoc(userDocRef, updatedUserData, { merge: true }),
-          sendVerificationConfirmationEmail(email)
+          sendVerificationConfirmationEmail(email),
         ]);
 
         // Update local state and redirect
@@ -138,7 +146,12 @@ const VerifyEmailComponent = ({ mode, oobCode }) => {
   }, [mode, oobCode, router, user, setUser]);
 
   // Helper function to get or create Thinkific user
-  async function getOrCreateThinkificUser(email, password, firstName, lastName) {
+  async function getOrCreateThinkificUser(
+    email,
+    password,
+    firstName,
+    lastName
+  ) {
     try {
       // Try to create the user first
       const createResponse = await thinkificApi.post(
@@ -151,36 +164,46 @@ const VerifyEmailComponent = ({ mode, oobCode }) => {
           full_name: `${firstName} ${lastName}`,
         }
       );
-      console.log(createResponse)
+      console.log(createResponse);
       return createResponse.data.id;
     } catch (error) {
       // If user exists (422), fetch the existing user
       if (error.response?.status === 422) {
         const checkUserUrl = `https://api.thinkific.com/api/public/v1/users?query[email]=${encodeURIComponent(email)}`;
         const checkUserResponse = await thinkificApi.get(checkUserUrl);
-        
+
         if (checkUserResponse.data.items?.length > 0) {
           return checkUserResponse.data.items[0].id;
         }
       }
-      throw new Error(`Thinkific error: ${error.response?.data?.message || error.message}`);
+      throw new Error(
+        `Thinkific error: ${error.response?.data?.message || error.message}`
+      );
     }
   }
 
   // Helper function to get or create Acelle subscriber
-  async function getOrCreateAcelleSubscriber(email, firstName, lastName, existingId) {
+  async function getOrCreateAcelleSubscriber(
+    email,
+    firstName,
+    lastName,
+    existingId
+  ) {
     // If we already have a subscriber ID, no need to recreate
     if (existingId) return existingId;
-    
+
     try {
       // Try to create new subscriber
-      const response = await acelleApi.post(`${ACELLE_API_BASE_URL}/subscribers`, {
-        list_uid: ACELLE_LIST_UID,
-        EMAIL: email,
-        FIRST_NAME: firstName,
-        LAST_NAME: lastName,
-        status: "subscribed",
-      });
+      const response = await acelleApi.post(
+        `${ACELLE_API_BASE_URL}/subscribers`,
+        {
+          list_uid: ACELLE_LIST_UID,
+          EMAIL: email,
+          FIRST_NAME: firstName,
+          LAST_NAME: lastName,
+          status: "subscribed",
+        }
+      );
       return response.data.subscriber_id;
     } catch (error) {
       // If creation fails, try to fetch existing subscriber
@@ -189,18 +212,18 @@ const VerifyEmailComponent = ({ mode, oobCode }) => {
           `${ACELLE_API_BASE_URL}/subscribers/email/${encodeURIComponent(email)}`,
           { params: { api_token: ACELLE_API_TOKEN } }
         );
-        
+
         const existingSubscriber = existingResponse.data.subscribers.find(
           (sub) => sub.list_uid === ACELLE_LIST_UID
         );
-        
+
         if (existingSubscriber) {
           return existingSubscriber.id;
         }
       } catch (fetchError) {
         console.error("Failed to fetch Acelle subscriber:", fetchError);
       }
-      
+
       // Non-critical error, return null but don't block verification
       return null;
     }
@@ -210,16 +233,16 @@ const VerifyEmailComponent = ({ mode, oobCode }) => {
   async function sendVerificationConfirmationEmail(email) {
     try {
       // Fetch template only once
-      const docRef = doc(firestore, "email_templates", 'email-verified');
+      const docRef = doc(firestore, "email_templates", "email-verified");
       const docSnap = await getDoc(docRef);
-      
+
       if (!docSnap.exists()) {
         console.error("Email template not found");
         return;
       }
-      
+
       const { template } = docSnap.data();
-      
+
       // Send email
       await axios.post(`/api/sendMail`, {
         to: email,
@@ -238,9 +261,7 @@ const VerifyEmailComponent = ({ mode, oobCode }) => {
 
   if (loading) {
     return (
-      <div
-        className="flex items-center justify-center min-h-screen bg-gray-100"
-      >
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="text-center">
           <ImSpinner10 className="w-12 h-12 text-primary animate-spin mx-auto" />
           <p className="mt-4 text-lg font-medium text-gray-700">
@@ -253,14 +274,14 @@ const VerifyEmailComponent = ({ mode, oobCode }) => {
 
   if (error) {
     return (
-      <div
-        className="flex items-center justify-center min-h-screen bg-gray-100"
-      >
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="text-center bg-white p-6 rounded-lg shadow-md max-w-md">
           <div className="text-red-500 text-5xl mb-4">!</div>
           <h2 className="text-xl font-semibold mb-2">Verification Failed</h2>
           <p className="text-gray-600 mb-4">{error}</p>
-          <p className="text-gray-500 text-sm">Redirecting you to home page...</p>
+          <p className="text-gray-500 text-sm">
+            Redirecting you to home page...
+          </p>
         </div>
       </div>
     );

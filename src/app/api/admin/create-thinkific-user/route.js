@@ -24,8 +24,10 @@ export async function POST(req) {
     }
 
     const THINKIFIC_API_BASE_URL = "https://api.thinkific.com/api/public/v1";
-    const NEXT_PUBLIC_THINKIFIC_API_KEY = process.env.NEXT_PUBLIC_THINKIFIC_API_KEY;
-    const NEXT_PUBLIC_THINKIFIC_SUBDOMAIN = process.env.NEXT_PUBLIC_THINKIFIC_SUBDOMAIN;
+    const NEXT_PUBLIC_THINKIFIC_API_KEY =
+      process.env.NEXT_PUBLIC_THINKIFIC_API_KEY;
+    const NEXT_PUBLIC_THINKIFIC_SUBDOMAIN =
+      process.env.NEXT_PUBLIC_THINKIFIC_SUBDOMAIN;
 
     const url = `${THINKIFIC_API_BASE_URL}/users`;
     const headers = {
@@ -54,7 +56,7 @@ export async function POST(req) {
     return Response.json({
       success: true,
       thinkificUserId: response.data.id,
-      user: response.data
+      user: response.data,
     });
   } catch (error) {
     console.error(
@@ -67,9 +69,12 @@ export async function POST(req) {
       console.log("Email already taken, trying to find existing user...");
 
       try {
-        const THINKIFIC_API_BASE_URL = "https://api.thinkific.com/api/public/v1";
-        const NEXT_PUBLIC_THINKIFIC_API_KEY = process.env.NEXT_PUBLIC_THINKIFIC_API_KEY;
-        const NEXT_PUBLIC_THINKIFIC_SUBDOMAIN = process.env.NEXT_PUBLIC_THINKIFIC_SUBDOMAIN;
+        const THINKIFIC_API_BASE_URL =
+          "https://api.thinkific.com/api/public/v1";
+        const NEXT_PUBLIC_THINKIFIC_API_KEY =
+          process.env.NEXT_PUBLIC_THINKIFIC_API_KEY;
+        const NEXT_PUBLIC_THINKIFIC_SUBDOMAIN =
+          process.env.NEXT_PUBLIC_THINKIFIC_SUBDOMAIN;
 
         const headers = {
           "X-Auth-API-Key": NEXT_PUBLIC_THINKIFIC_API_KEY,
@@ -94,7 +99,7 @@ export async function POST(req) {
             success: true,
             thinkificUserId: finalResponse.data.items[0].id,
             user: finalResponse.data.items[0],
-            existing: true
+            existing: true,
           });
         }
       } catch (finalError) {

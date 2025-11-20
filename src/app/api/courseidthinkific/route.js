@@ -8,7 +8,10 @@ export async function GET() {
 
     if (!apiKey || !subdomain) {
       return NextResponse.json(
-        { message: "Missing NEXT_PUBLIC_THINKIFIC_API_KEY or NEXT_PUBLIC_THINKIFIC_SUBDOMAIN" },
+        {
+          message:
+            "Missing NEXT_PUBLIC_THINKIFIC_API_KEY or NEXT_PUBLIC_THINKIFIC_SUBDOMAIN",
+        },
         { status: 400 }
       );
     }
@@ -49,7 +52,7 @@ export async function GET() {
         }));
 
         allCourses = allCourses.concat(courses);
-        
+
         // Check if we've reached the last page
         if (data.meta && data.meta.pagination) {
           const { current_page, total_pages } = data.meta.pagination;
@@ -67,14 +70,14 @@ export async function GET() {
       }
 
       // Add a small delay to be respectful of rate limits
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     console.log(`✅ Fetched ${allCourses.length} courses from Thinkific`);
 
-    return NextResponse.json({ 
-      count: allCourses.length, 
-      courses: allCourses 
+    return NextResponse.json({
+      count: allCourses.length,
+      courses: allCourses,
     });
   } catch (err) {
     console.error("Thinkific fetch error:", err.message);

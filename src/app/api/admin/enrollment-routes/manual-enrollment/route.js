@@ -1,36 +1,57 @@
 import { NextResponse } from "next/server";
 import { firestore as db } from "@/Backend/Firebase";
 import axios from "axios";
-import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
 
 export async function POST(req) {
   console.log("--- Manual Enrollment API: Request Received ---");
-  
+
   try {
     const { userId, userEmail, userLmsId, courses } = await req.json();
-    
+
     console.log("Manual Enrollment API Received:", {
       userId,
       userEmail,
       userLmsId,
-      courses
+      courses,
     });
 
     // Validate required fields
-    if (!userId || !userEmail || !userLmsId || !courses || !Array.isArray(courses) || courses.length === 0) {
+    if (
+      !userId ||
+      !userEmail ||
+      !userLmsId ||
+      !courses ||
+      !Array.isArray(courses) ||
+      courses.length === 0
+    ) {
       console.error("Missing required fields");
-      return NextResponse.json({
-        error: "Missing required fields",
-        details: "userId, userEmail, userLmsId, and courses array are required"
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "Missing required fields",
+          details:
+            "userId, userEmail, userLmsId, and courses array are required",
+        },
+        { status: 400 }
+      );
     }
 
     // Validate that userLmsId exists
     if (!userLmsId) {
-      return NextResponse.json({
-        error: "User LMS ID is required for enrollment",
-        details: "Please ensure the user has a Thinkific account first"
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "User LMS ID is required for enrollment",
+          details: "Please ensure the user has a Thinkific account first",
+        },
+        { status: 400 }
+      );
     }
 
     const enrollmentResults = [];
@@ -40,38 +61,44 @@ export async function POST(req) {
     for (const course of courses) {
       try {
         console.log(`Enrolling user ${userLmsId} in course ${course.courseId}`);
-        
+
         const enrollResponse = await axios.post(
           `https://api.thinkific.com/api/public/v1/enrollments`,
           {
             course_id: course.lmsCourseId,
             user_id: userLmsId,
-            activated_at: new Date().toISOString() // Set activation time to now to ensure active status
+            activated_at: new Date().toISOString(), // Set activation time to now to ensure active status
           },
           {
             headers: {
               "Content-Type": "application/json",
               "X-Auth-API-Key": process.env.NEXT_PUBLIC_THINKIFIC_API_KEY,
-              "X-Auth-Subdomain": process.env.NEXT_PUBLIC_THINKIFIC_SUBDOMAIN
+              "X-Auth-Subdomain": process.env.NEXT_PUBLIC_THINKIFIC_SUBDOMAIN,
             },
             timeout: 10000,
           }
         );
-        
-        console.log(`Enrollment successful for course ${course.courseId}:`, enrollResponse.data);
+
+        console.log(
+          `Enrollment successful for course ${course.courseId}:`,
+          enrollResponse.data
+        );
         enrollmentResults.push({
           courseId: course.courseId,
           name: course.name,
           lmsCourseId: course.lmsCourseId,
           success: true,
-          data: enrollResponse.data
+          data: enrollResponse.data,
         });
       } catch (error) {
-        console.error(`Failed to enroll in course ${course.courseId}:`, error.response?.data || error.message);
+        console.error(
+          `Failed to enroll in course ${course.courseId}:`,
+          error.response?.data || error.message
+        );
         errors.push({
           courseId: course.courseId,
           name: course.name,
-          error: error.response?.data?.message || error.message
+          error: error.response?.data?.message || error.message,
         });
       }
     }
@@ -94,19 +121,19 @@ export async function POST(req) {
 
       // Check if user has additionalCourses_paid_invoice array
       let additionalCourses = userData.additionalCourses_paid_invoice || [];
-      
+
       // Create a new invoice entry for the manually enrolled courses
       const newInvoice = {
         invoiceNumber: `MANUAL-${Date.now()}`,
-        selectedCourses: courses.map(course => ({
+        selectedCourses: courses.map((course) => ({
           courseId: course.courseId,
           name: course.name,
-          lmsCourseId: course.lmsCourseId
+          lmsCourseId: course.lmsCourseId,
         })),
         paidAt: new Date().toISOString(),
         paymentMethod: "Manual Enrollment",
         amount: 0, // Free enrollment
-        status: "paid"
+        status: "paid",
       };
 
       additionalCourses.push(newInvoice);
@@ -125,7 +152,7 @@ export async function POST(req) {
         message: "Courses enrolled successfully but database update failed",
         warning: "User courses updated in Thinkific but not in local database",
         enrollmentResults,
-        errors
+        errors,
       });
     }
 
@@ -134,15 +161,18 @@ export async function POST(req) {
       success: true,
       message: `Successfully enrolled in ${enrollmentResults.length} course(s)`,
       enrollmentResults,
-      errors: errors.length > 0 ? errors : undefined
+      errors: errors.length > 0 ? errors : undefined,
     });
   } catch (error) {
     console.error("Unexpected error in manual enrollment:", error);
 
-    return NextResponse.json({
-      error: "Unexpected error in manual enrollment",
-      details: error.message,
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "Unexpected error in manual enrollment",
+        details: error.message,
+      },
+      { status: 500 }
+    );
   } finally {
     console.log("--- Manual Enrollment API: Request Completed ---");
   }

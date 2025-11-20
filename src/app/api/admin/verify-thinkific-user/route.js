@@ -67,25 +67,22 @@ export async function POST(req) {
         }
 
         // Use the search endpoint with proper query parameter
-        const response = await axios.get(
-          `${THINKIFIC_API_BASE_URL}/users`,
-          {
-            headers,
-            params: {
-              query: email,
-              limit: 1 // We only need to check if the user exists
-            },
-            validateStatus: (status) => status < 500,
-          }
-        );
+        const response = await axios.get(`${THINKIFIC_API_BASE_URL}/users`, {
+          headers,
+          params: {
+            query: email,
+            limit: 1, // We only need to check if the user exists
+          },
+          validateStatus: (status) => status < 500,
+        });
 
         if (response.status === 200) {
           if (response.data.items && response.data.items.length > 0) {
             // Find the exact match by email
             const exactMatch = response.data.items.find(
-              user => user.email.toLowerCase() === email.toLowerCase()
+              (user) => user.email.toLowerCase() === email.toLowerCase()
             );
-            
+
             if (exactMatch) {
               return Response.json({
                 verified: true,
@@ -94,7 +91,7 @@ export async function POST(req) {
               });
             }
           }
-          
+
           return Response.json({
             verified: false,
             message: "User not found by email",
@@ -111,13 +108,13 @@ export async function POST(req) {
         );
       } catch (error) {
         console.error("Email lookup error:", error);
-        
+
         // Log more details about the error
         if (error.response) {
           console.error("Error response data:", error.response.data);
           console.error("Error response status:", error.response.status);
         }
-        
+
         return Response.json(
           {
             error: "Email verification failed",
@@ -139,13 +136,13 @@ export async function POST(req) {
     );
   } catch (error) {
     console.error("Endpoint error:", error);
-    
+
     // Log more details about the error
     if (error.response) {
       console.error("Error response data:", error.response.data);
       console.error("Error response status:", error.response.status);
     }
-    
+
     return Response.json(
       {
         error: "Verification failed",

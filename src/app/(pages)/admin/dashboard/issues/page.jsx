@@ -51,19 +51,9 @@ import {
   FaBook,
   FaTachometerAlt,
   FaCog,
-  FaSignOutAlt,
   FaInfoCircle,
-  FaExternalLinkAlt,
   FaUserCircle,
   FaShieldAlt,
-  FaHistory,
-  FaAward,
-  FaBell,
-  FaDatabase,
-  FaRocket,
-  FaTools,
-  FaClipboardList,
-  FaUserClock,
 } from "react-icons/fa";
 import EditProfileModal from "@/adminComponents/EditProfileModal";
 import EditCoursesModal from "@/adminComponents/EditCoursesModal";
@@ -102,12 +92,12 @@ const CourseDetailPopup = ({ isOpen, onClose, course }) => {
                 e.target.style.display = "none";
                 e.target.parentElement.classList.add("bg-gray-200");
                 e.target.parentElement.innerHTML = `
-                  <div class="w-full h-full flex items-center justify-center">
-                    <p class="text-gray-600 text-sm font-medium text-center px-2">
-                      ${course.name}
-                    </p>
-                  </div>
-                `;
+                    <div class="w-full h-full flex items-center justify-center">
+                      <p class="text-gray-600 text-sm font-medium text-center px-2">
+                        ${course.name}
+                      </p>
+                    </div>
+                  `;
               }}
             />
           </div>
@@ -1430,11 +1420,6 @@ const IssuesViewContent = () => {
   const getImagePath = (imagePath) => {
     if (!imagePath) return "";
 
-    // If the path already starts with http, it's an absolute URL
-    if (imagePath.startsWith("http")) {
-      return imagePath;
-    }
-
     // If the path already starts with /, use it as is
     if (imagePath.startsWith("/")) {
       return imagePath;
@@ -2044,12 +2029,12 @@ const IssuesViewContent = () => {
                                     "bg-gray-200"
                                   );
                                   e.target.parentElement.innerHTML = `
-                                    <div class="w-full h-full flex items-center justify-center p-1">
-                                      <p class="text-gray-600 text-xs font-medium text-center">
-                                        ${course.name.substring(0, 15)}${course.name.length > 15 ? "..." : ""}
-                                      </p>
-                                    </div>
-                                  `;
+                                      <div class="w-full h-full flex items-center justify-center p-1">
+                                        <p class="text-gray-600 text-xs font-medium text-center">
+                                          ${course.name.substring(0, 15)}${course.name.length > 15 ? "..." : ""}
+                                        </p>
+                                      </div>
+                                    `;
                                 }}
                               />
                               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all"></div>
@@ -2092,12 +2077,12 @@ const IssuesViewContent = () => {
                                     "bg-gray-200"
                                   );
                                   e.target.parentElement.innerHTML = `
-                                    <div class="w-full h-full flex items-center justify-center p-1">
-                                      <p class="text-gray-600 text-xs font-medium text-center">
-                                        ${course.name.substring(0, 15)}${course.name.length > 15 ? "..." : ""}
-                                      </p>
-                                    </div>
-                                  `;
+                                      <div class="w-full h-full flex items-center justify-center p-1">
+                                        <p class="text-gray-600 text-xs font-medium text-center">
+                                          ${course.name.substring(0, 15)}${course.name.length > 15 ? "..." : ""}
+                                        </p>
+                                      </div>
+                                    `;
                                 }}
                               />
                               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all"></div>
