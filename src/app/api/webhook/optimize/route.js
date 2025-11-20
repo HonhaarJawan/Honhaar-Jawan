@@ -165,12 +165,3 @@ export async function POST(req) {
     );
   }
 }
-
-// Configure body parser for larger files if needed (Next.js App Router handles this differently,
-// but good to keep in mind limits are usually in next.config.js)
-export const config = {
-  api: {
-    bodyParser: false, // Not strictly needed for App Router but legacy habit
-    responseLimit: false,
-  },
-};

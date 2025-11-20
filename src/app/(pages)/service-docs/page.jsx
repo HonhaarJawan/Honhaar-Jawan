@@ -26,13 +26,13 @@ export default function ServiceDocs() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [serverStatus, setServerStatus] = useState(null);
-  const [toast, setToast] = useState(null); // { message: string, type: 'success' | 'error' | 'warning' }
+  const [toast, setToast] = useState(null);
 
   const showToast = (message, type = "info") => {
     setToast({ message, type });
     setTimeout(() => {
       setToast(null);
-    }, 3000); // Hide after 3 seconds
+    }, 3000);
   };
 
   const handleFileChange = (e) => {
@@ -76,7 +76,7 @@ export default function ServiceDocs() {
 
     try {
       const response = await fetch(
-        "https://honhaarjawan.pk/api/webhook/optimize",
+        "https://honhaarjawan.pk/api/webhook/optimizer",
         {
           method: "POST",
           body: formData,
@@ -98,7 +98,6 @@ export default function ServiceDocs() {
       const contentDisposition = response.headers.get("content-disposition");
       let fileName = "optimized_image";
       if (contentDisposition) {
-        // Improved regex to handle quoted filenames correctly
         const fileNameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
         if (fileNameMatch && fileNameMatch.length === 2) {
           fileName = fileNameMatch[1];
@@ -207,7 +206,6 @@ export default function ServiceDocs() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8">
-            {/* Testing Interface */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
               <div className="p-6 border-b border-gray-200 bg-gray-50">
                 <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -217,7 +215,6 @@ export default function ServiceDocs() {
               </div>
 
               <div className="p-6 space-y-6">
-                {/* File Upload */}
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
                   <input
                     type="file"
@@ -247,7 +244,6 @@ export default function ServiceDocs() {
                   </div>
                 )}
 
-                {/* Settings */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -331,7 +327,6 @@ export default function ServiceDocs() {
                   )}
                 </button>
 
-                {/* Results */}
                 {result && (
                   <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
                     <div className="flex items-center gap-2 text-green-800 font-semibold mb-2">
@@ -366,7 +361,6 @@ export default function ServiceDocs() {
               </div>
             </div>
 
-            {/* Documentation & Examples */}
             <div className="space-y-6">
               <div className="bg-gray-900 rounded-xl shadow-sm overflow-hidden text-gray-300">
                 <div className="p-4 border-b border-gray-800 bg-gray-800 flex items-center justify-between">
@@ -384,7 +378,7 @@ export default function ServiceDocs() {
                       Endpoint
                     </h3>
                     <code className="block bg-black p-3 rounded text-sm font-mono text-green-400">
-                      https://honhaarjawan.pk/api/webhook/optimize
+                      https://honhaarjawan.pk/api/webhook/optimizer
                     </code>
                   </div>
 
@@ -399,7 +393,7 @@ export default function ServiceDocs() {
   -F "quality=80" \\
   -F "format=webp" \\
   -o optimized_images.zip \\
-  https://honhaarjawan.pk/api/webhook/optimize`}
+  https://honhaarjawan.pk/api/webhook/optimizer`}
                     </pre>
                   </div>
 
@@ -417,11 +411,11 @@ form.append('files', fs.createReadStream('image.jpg'));
 form.append('quality', '85');
 
 const response = await axios.post(
-  'https://honhaarjawan.pk/api/webhook/optimize', 
+  'https://honhaarjawan.pk/api/webhook/optimizer', 
   form, 
   {
     headers: { ...form.getHeaders() },
-    responseType: 'stream' // Important for file download
+    responseType: 'stream'
   }
 );
 
