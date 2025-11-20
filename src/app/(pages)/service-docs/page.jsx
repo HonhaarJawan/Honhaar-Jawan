@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "@/components/primary/Navbar";
 import Copyright from "@/components/primary/Copyright";
 import {
@@ -8,13 +8,14 @@ import {
   FaCode,
   FaCheckCircle,
   FaServer,
+  FaInfoCircle,
+  FaTimesCircle,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import { ImSpinner } from "react-icons/im";
 import axios from "axios";
-import { useToast } from "@/components/primary/Toast";
 
 export default function ServiceDocs() {
-  const { showToast } = useToast();
   const [files, setFiles] = useState([]);
   const [settings, setSettings] = useState({
     quality: 80,
@@ -26,6 +27,14 @@ export default function ServiceDocs() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [serverStatus, setServerStatus] = useState(null);
+  const [toast, setToast] = useState(null); // { message: string, type: 'success' | 'error' | 'warning' }
+
+  const showToast = (message, type = "info") => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 3000); // Hide after 3 seconds
+  };
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -65,14 +74,17 @@ export default function ServiceDocs() {
     if (settings.height) formData.append("height", settings.height);
 
     try {
-      const response = await axios.post("https://honhaarjawan.pk/api/webhook/optimize", formData, {
-        responseType: "blob",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        "https://honhaarjawan.pk/api/webhook/optimize",
+        formData,
+        {
+          responseType: "blob",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-      // Extract stats from headers
       const stats = {
         originalSize: response.headers["x-original-size"],
         optimizedSize: response.headers["x-optimized-size"],
@@ -80,7 +92,6 @@ export default function ServiceDocs() {
         ratio: response.headers["x-compression-ratio"],
       };
 
-      // Create download link
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -88,11 +99,11 @@ export default function ServiceDocs() {
       let fileName = "optimized_image";
       if (contentDisposition) {
         const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/);
-        if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
+        if (fileNameMatch && fileNameMatch.length === 2)
+          fileName = fileNameMatch[1];
       }
       link.setAttribute("download", fileName);
 
-      // Auto download
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -115,10 +126,50 @@ export default function ServiceDocs() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
+  const getToastIcon = (type) => {
+    switch (type) {
+      case "success":
+        return <FaCheckCircle className="text-green-500" />;
+      case "error":
+        return <FaTimesCircle className="text-red-500" />;
+      case "warning":
+        return <FaExclamationTriangle className="text-yellow-500" />;
+      default:
+        return <FaInfoCircle className="text-blue-500" />;
+    }
+  };
+
+  const getToastClasses = (type) => {
+    switch (type) {
+      case "success":
+        return "bg-green-100 border-green-400 text-green-700";
+      case "error":
+        return "bg-red-100 border-red-400 text-red-700";
+      case "warning":
+        return "bg-yellow-100 border-yellow-400 text-yellow-700";
+      default:
+        return "bg-blue-100 border-blue-400 text-blue-700";
+    }
+  };
+
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-gray-50 pt-28 pb-16">
+      <main className="min-h-screen bg-gray-50 pt-28 pb-16 relative">
+        {toast && (
+          <div
+            className={`fixed top-24 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border ${getToastClasses(toast.type)} transition-all duration-300 animate-fade-in-down`}
+          >
+            {getToastIcon(toast.type)}
+            <p className="text-sm font-medium">{toast.message}</p>
+            <button
+              onClick={() => setToast(null)}
+              className="ml-2 opacity-70 hover:opacity-100"
+            >
+              <FaTimesCircle />
+            </button>
+          </div>
+        )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -327,7 +378,7 @@ export default function ServiceDocs() {
                       Endpoint
                     </h3>
                     <code className="block bg-black p-3 rounded text-sm font-mono text-green-400">
-                     https://honhaarjawan.pk/api/webhook/optimize
+                      https://honhaarjawan.pk/api/webhook/optimize
                     </code>
                   </div>
 
@@ -370,34 +421,6 @@ const response = await axios.post(
 
 response.data.pipe(fs.createWriteStream('optimized.jpg'));`}
                     </pre>
-                  </div>
-
-                  <div>
-                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                      Response Headers
-                    </h3>
-                    <ul className="text-xs space-y-1 font-mono text-gray-400">
-                      <li>
-                        <span className="text-purple-400">X-Original-Size</span>
-                        : Size in bytes
-                      </li>
-                      <li>
-                        <span className="text-purple-400">
-                          X-Optimized-Size
-                        </span>
-                        : Size in bytes
-                      </li>
-                      <li>
-                        <span className="text-purple-400">X-Saved-Bytes</span>:
-                        Bytes saved
-                      </li>
-                      <li>
-                        <span className="text-purple-400">
-                          X-Compression-Ratio
-                        </span>
-                        : Percentage
-                      </li>
-                    </ul>
                   </div>
                 </div>
               </div>
