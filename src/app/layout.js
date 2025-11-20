@@ -12,17 +12,17 @@ const jost = Jost({
 });
 
 export const metadata = {
-  title: `${SiteDetails.programName}`,
+  title: `Honhaar Jawan`,
   description:
     "Honhaar Jawan, a flagship initiative by the Government of Jawan, provides free online and on-campus training in IT, freelancing, digital marketing, and technical skills to empower youth with career-ready opportunities.",
-  applicationName: `${SiteDetails.programName}`,
+  applicationName: `Honhaar Jawan`,
   generator: "Next.js",
   category: "Education",
-  authors: [
-    { name: SiteDetails.programName, url: `https://${SiteDetails.domain}` },
-  ],
-  creator: SiteDetails.programName,
-  publisher: SiteDetails.programName,
+  authors: [{ name: "Honhaar Jawan", url: `https://honhaarjawan.pk` }],
+  creator: "Honhaar Jawan",
+  publisher: "Honhaar Jawan",
+  metadataBase: new URL("https://honhaarjawan.pk"),
+
   keywords: [
     "Honhaar Jawan",
     "honhaar Jawan",
@@ -138,26 +138,25 @@ export const metadata = {
       "Honhaar Jawan, a flagship initiative by the Government of Jawan, provides free online and on-campus training in IT, freelancing, digital marketing, and technical skills to empower youth with career-ready opportunities.",
     description:
       "Honhaar Jawan, a flagship initiative by the Government of Jawan, provides free online and on-campus training in IT, freelancing, digital marketing, and technical skills to empower youth with career-ready opportunities.",
-    images: ["/images/pftp-logo.jpg"],
+    images: ["/favicon.ico"],
   },
   twitter: {
     card: "summary_large_image",
     creator: "@pftp",
-    images: ["/images/pftp-logo.jpg"],
+    images: ["/favicon.ico"],
     title:
       "Honhaar Jawan, a flagship initiative by the Government of Jawan, provides free online and on-campus training in IT, freelancing, digital marketing, and technical skills to empower youth with career-ready opportunities.",
     description:
       "Honhaar Jawan, a flagship initiative by the Government of Jawan, provides free online and on-campus training in IT, freelancing, digital marketing, and technical skills to empower youth with career-ready opportunities.",
   },
 };
-
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`antialiased ${jost.variable}`}>
         <ToastProvider>
-            {children}
-            <ContactModal />
+          {children}
+          <ContactModal />
         </ToastProvider>
       </body>
     </html>
