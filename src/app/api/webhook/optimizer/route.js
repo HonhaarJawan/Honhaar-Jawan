@@ -4,8 +4,16 @@ import { NextResponse } from "next/server";
 // To scale horizontally, deploy the optimization service to multiple servers
 // and add their URLs here
 const WORKER_NODES = [
-  "http://localhost:3000/api/webhook/optimize",
-  "https://honhaarjawan.pk/api/webhook/optimize",
+  "https://honhaarjawan.pk/api/webhook/optimize/1",
+  "https://honhaarjawan.pk/api/webhook/optimize/2",
+  "https://honhaarjawan.pk/api/webhook/optimize/3",
+  "https://honhaarjawan.pk/api/webhook/optimize/4",
+  "https://honhaarjawan.pk/api/webhook/optimize/5",
+  "https://honhaarjawan.pk/api/webhook/optimize/6",
+  "https://honhaarjawan.pk/api/webhook/optimize/7",
+  "https://honhaarjawan.pk/api/webhook/optimize/8",
+  "https://honhaarjawan.pk/api/webhook/optimize/9",
+  "https://honhaarjawan.pk/api/webhook/optimize/10",
 ];
 
 let currentWorkerIndex = 0;
