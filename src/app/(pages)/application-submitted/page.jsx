@@ -31,10 +31,9 @@ import { motion } from "framer-motion";
 import Copyright from "@/components/primary/Copyright";
 import { useToast } from "@/components/primary/Toast";
 import SiteDetails from "@/Data/SiteData";
-import { useAuthStore } from "@/store/registrationStore"; // Import the auth store
 
 const ApplicationSubmitted = () => {
-  const { user, getUserFromAnySource } = useAuthStore(); // Get user from auth store
+  const [user, setUser] = useState(null);
   const [applicationDate, setApplicationDate] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [password, setPassword] = useState("");
@@ -44,24 +43,35 @@ const ApplicationSubmitted = () => {
   const { showToast } = useToast();
 
   useEffect(() => {
-    // If user is not in the store, try to load from any source
-    if (!user) {
-      console.log("No user in store, attempting to load from storage");
-      const userData = getUserFromAnySource();
+    // Get user data from cookie
+    const getCookie = (name) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(";").shift();
+      return null;
+    };
 
-      if (!userData) {
-        console.error("No user data found, redirecting to home");
+    const registrationCookie = getCookie("registration");
+
+    if (registrationCookie) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(registrationCookie));
+        console.log("User data from cookie:", userData);
+        setUser(userData);
+
+        // Fetch additional application data
+        if (userData.email) {
+          fetchApplicationData(userData.email);
+        }
+      } catch (error) {
+        console.error("Error parsing registration cookie:", error);
         router.replace("/");
-        return;
       }
-
-      // If we got user data, fetch additional application data
-      fetchApplicationData(userData.email);
     } else {
-      // If user is in the store, fetch additional application data
-      fetchApplicationData(user.email);
+      console.error("No registration cookie found, redirecting to home");
+      router.replace("/");
     }
-  }, [user, getUserFromAnySource, router]);
+  }, [router]);
 
   const fetchApplicationData = async (email) => {
     const q = query(
@@ -102,8 +112,7 @@ const ApplicationSubmitted = () => {
     setLoading(true);
     const email = user.email;
     const formNo = user.formNo;
-    const firstName = user.firstName;
-    const lastName = user.lastName;
+    const fullName = user.fullName;
 
     const templateRef = doc(firestore, "email_templates", "resend_email");
     const templateSnap = await getDoc(templateRef);
@@ -119,7 +128,7 @@ const ApplicationSubmitted = () => {
           subject: "Resend: Your Login Credentials",
           htmlTemplate: template,
           placeholders: {
-            fullName: user.fullName,
+            fullName: fullName,
             email: email,
             formNo: formNo,
             companyName: "Honhaar Jawan",
@@ -151,10 +160,8 @@ const ApplicationSubmitted = () => {
   // Debug function to check cookies
   const debugStorage = () => {
     console.log("=== Storage Debug ===");
-    console.log("User from store:", user);
+    console.log("User from state:", user);
     console.log("All cookies:", document.cookie);
-    console.log("SessionStorage:", sessionStorage.getItem("registration"));
-    console.log("LocalStorage:", localStorage.getItem("registration"));
     console.log("=== End Debug ===");
   };
 
@@ -398,8 +405,8 @@ const ApplicationSubmitted = () => {
                       {user?.formNo || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">
-                      {user?.selectedCourses
-                        ? user.selectedCourses.map((course, idx) => (
+                      {user?.courses && user.courses.length > 0
+                        ? user.courses.map((course, idx) => (
                             <div key={idx} className="mb-1 last:mb-0">
                               {course.name}
                             </div>
