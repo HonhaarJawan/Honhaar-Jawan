@@ -229,15 +229,6 @@ const PayproPaymentImages = ({ isDownloadButton, user }) => {
                 <div className="p-6 bg-white">
                   {selectedBank.imageCount > 0 ? (
                     <div className="space-y-4">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                          <FaImage className="text-green-600 text-sm" />
-                        </div>
-                        <h3 className="text-lg font-bold text-gray-800">
-                          Payment Screenshots
-                        </h3>
-                      </div>
-
                       <div className="space-y-4">
                         {Array.from({ length: selectedBank.imageCount }).map(
                           (_, index) => (

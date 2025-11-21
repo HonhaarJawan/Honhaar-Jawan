@@ -45,7 +45,6 @@ const EditProfileModal = ({ isOpen, onClose }) => {
     dob: "",
     maritalStatus: "Single",
     gender: "Female",
-    permanentAddress: "",
     currentAddress: "",
     city: "",
   });
@@ -536,20 +535,6 @@ const EditProfileModal = ({ isOpen, onClose }) => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div>
                       <label className="text-xs font-medium text-gray-600 block mb-1">
-                        Permanent Address
-                      </label>
-                      <input
-                        type="text"
-                        name="permanentAddress"
-                        value={formData.permanentAddress}
-                        onChange={handleChange}
-                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-medium text-gray-600 block mb-1">
                         Current Address
                       </label>
                       <input
@@ -561,20 +546,19 @@ const EditProfileModal = ({ isOpen, onClose }) => {
                         required
                       />
                     </div>
-                  </div>
-
-                  <div className="md:w-1/2">
-                    <label className="text-xs font-medium text-gray-600 block mb-1">
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleChange}
-                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
-                      required
-                    />
+                    <div className="">
+                      <label className="text-xs font-medium text-gray-600 block mb-1">
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleChange}
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
