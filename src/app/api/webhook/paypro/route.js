@@ -281,13 +281,32 @@ const sendAdditionalEnrollmentEmail = async (userData, addedCourses) => {
     console.error("Failed to send additional enrollment email:", error);
   }
 };
-
-const sendCertificateEmail = async (certificateData, completionDate) => {
+const sendCertificateEmail = async (certificateData) => {
   try {
-    const templateRef = doc(firestore, "email_templates", "certificate_email");
+    const templateRef = doc(firestore, "email_templates", "Certificate_Template");
     const templateSnap = await getDoc(templateRef);
     if (templateSnap.exists()) {
       const template = templateSnap.data().template;
+      
+      // Format the date to a more readable format
+      const issueDate = new Date(certificateData.completedAt || certificateData.issuedAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      // Generate the download URL with proper URL encoding
+      const baseUrl = "https://honhaarjawan.pk/get-certificate";
+      const params = new URLSearchParams({
+        verificationId: certificateData.verificationId,
+        fullName: certificateData.fullName,
+        courseName: certificateData.courseName,
+        completedAt: certificateData.completedAt || certificateData.issuedAt,
+        email: certificateData.email,
+        cnic: certificateData.cnic
+      });
+      const downloadLink = `${baseUrl}?${params.toString()}`;
+      
       await fetch(
         process.env.NODE_ENV === "development"
           ? `http://localhost:3000/api/sendMail`
@@ -302,10 +321,12 @@ const sendCertificateEmail = async (certificateData, completionDate) => {
             htmlTemplate: template,
             placeholders: {
               fullName: certificateData.fullName,
-              course_name: certificateData.name,
-              completion_date: completionDate,
-              certificate_fee: "2500 PKR",
-              companyName: "Honhaar Jawan",
+              course_name: certificateData.courseName,
+              issue_date: issueDate,
+              certificate_id: certificateData.verificationId,
+              validity_date: "Does Not Expire",
+              download_link: downloadLink,
+              address: certificateData.address,
             },
           }),
         }
@@ -319,8 +340,7 @@ const sendCertificateEmail = async (certificateData, completionDate) => {
   } catch (error) {
     console.error("Failed to send certificate email:", error);
   }
-};
-
+};                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 /**
  * Calculates the class start date based on the admission date.
  * Each day of the month has a specific number of days to add.

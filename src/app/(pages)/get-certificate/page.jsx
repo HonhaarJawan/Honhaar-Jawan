@@ -51,6 +51,116 @@ function formatReadableDate(isoString) {
   });
 }
 
+// Certificate Dispatch Notice Component
+const CertificateDispatchNotice = ({ certificate }) => {
+  const getDeliveryStatus = () => {
+    if (certificate?.status === "delivered") {
+      return { text: "Delivered", color: "text-green-600" };
+    } else if (certificate?.status === "printing") {
+      return { text: "Printing", color: "text-orange-600" };
+    }
+    return { text: "Processing", color: "text-yellow-600" };
+  };
+
+  const deliveryStatus = getDeliveryStatus();
+
+  return (
+    <div className="bg-green-50 border-2 border-green-300 rounded-sm p-6 mb-8">
+      <div className="flex items-start gap-3 mb-6">
+        <div className="bg-green-600 p-2 rounded-sm">
+          <FaFileAlt className="text-white text-xl" />
+        </div>
+        <div className="flex-1">
+          <h2 className="text-xl font-bold text-green-800 mb-2">
+            📋 Certificate Dispatch Notice
+          </h2>
+          <p className="text-green-700">
+            Your certificate has been successfully processed and will be
+            dispatched within <span className="font-bold">2 business days</span>
+            . You will receive a tracking number once your certificate is
+            shipped. Please ensure your mailing address is correct to avoid any
+            delays.
+          </p>
+        </div>
+      </div>
+
+      {/* Certificate Details Table */}
+      <div className="bg-white rounded-sm border border-green-200 overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-green-100 border-b border-green-200">
+              <th className="px-4 py-3 text-left text-sm font-bold text-gray-800">
+                Student Name
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-bold text-gray-800">
+                Certificate ID
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-bold text-gray-800">
+                Course Name
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-bold text-gray-800">
+                Completed At
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-bold text-gray-800">
+                Delivery Status
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b border-gray-200">
+              <td className="px-4 py-3 text-gray-700">
+                {certificate?.fullName || "N/A"}
+              </td>
+              <td className="px-4 py-3 text-gray-700 font-mono text-sm">
+                {certificate?.verificationId || "N/A"}
+              </td>
+              <td className="px-4 py-3 text-gray-700">
+                {certificate?.courseName || certificate?.name || "N/A"}
+              </td>
+              <td className="px-4 py-3 text-gray-700">
+                {formatReadableDate(
+                  certificate?.completedAt || certificate?.issuedAt
+                )}
+              </td>
+              <td className={`px-4 py-3 font-semibold ${deliveryStatus.color}`}>
+                {deliveryStatus.text}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Additional Information */}
+      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-sm p-4">
+        <div className="flex items-start gap-2">
+          <div className="bg-blue-600 p-1 rounded-full mt-1">
+            <FaExclamation className="text-white text-xs" />
+          </div>
+          <div>
+            <h4 className="font-bold text-gray-800 mb-2">
+              Important Information
+            </h4>
+            <ul className="text-gray-700 text-sm space-y-1">
+              <li>
+                • Your certificate will be delivered via registered post within
+                14 business days
+              </li>
+              <li>
+                • You will receive an email notification with tracking details
+                once shipped
+              </li>
+              <li>
+                • For any queries, contact our support at{" "}
+                {SiteDetails.supportEmail}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Component to handle the content that uses useSearchParams
 const CertificateVerificationContent = () => {
   const router = useRouter();
@@ -72,6 +182,7 @@ const CertificateVerificationContent = () => {
   const [showTickMark, setShowTickMark] = useState(false);
   const [invoiceLoading, setInvoiceLoading] = useState(false);
   const [invoiceStatus, setInvoiceStatus] = useState(null);
+  const [isPaid, setIsPaid] = useState(false);
 
   // Get URL parameters
   const verificationIdParam = searchParams.get("verificationId");
@@ -81,7 +192,38 @@ const CertificateVerificationContent = () => {
   const emailParam = searchParams.get("email");
   const cnicParam = searchParams.get("cnic");
 
-  // Listen for Consumer Number updates
+  // Initialize certificate data from URL parameters (instant load)
+  useEffect(() => {
+    if (!verificationIdParam) {
+      setError("Verification ID not provided.");
+      setLoading(false);
+      return;
+    }
+
+    // Build certificate object from URL parameters
+    const certData = {
+      verificationId: verificationIdParam,
+      fullName: fullNameParam || "N/A",
+      courseName: courseNameParam || "N/A",
+      completedAt: completedAtParam || new Date().toISOString(),
+      email: emailParam || "N/A",
+      cnic: cnicParam || "N/A",
+      issuedAt: completedAtParam || new Date().toISOString(),
+      status: "Loading...", // Show loading for status until snapshot updates
+    };
+
+    setCertificate(certData);
+    setLoading(false);
+  }, [
+    verificationIdParam,
+    fullNameParam,
+    courseNameParam,
+    completedAtParam,
+    emailParam,
+    cnicParam,
+  ]);
+
+  // Listen for Payment Status updates only (consumer number and payment status)
   useEffect(() => {
     if (!verificationIdParam) {
       setFetching(false);
@@ -94,61 +236,41 @@ const CertificateVerificationContent = () => {
       (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
+
+          // Update certificate with status from Firestore
+          setCertificate((prev) => ({
+            ...prev,
+            status: data?.status || "Loading...",
+          }));
+
+          // Set consumer number
           const currentConsumerNumber = data?.generatedPayProId?.consumerNumber;
           if (currentConsumerNumber !== consumerNumber) {
             setConsumerNumber(currentConsumerNumber);
           }
-        } else {
-          setConsumerNumber(null);
+
+          // Check if payment is completed (exclude pending status)
+          const paymentStatus = data?.generatedPayProId?.status;
+          const certStatus = data?.status;
+          setIsPaid(
+            (paymentStatus === "paid" ||
+              certStatus === "printing" ||
+              certStatus === "processing" ||
+              certStatus === "delivered") &&
+              certStatus !== "pending"
+          );
+
+          setFetching(false);
         }
-        setFetching(false);
       },
       (error) => {
-        console.error("Error fetching Consumer Number:", error);
+        console.error("Error fetching payment status:", error);
         setFetching(false);
       }
     );
 
     return () => unsubscribe();
   }, [verificationIdParam, consumerNumber]);
-
-  // Fetch certificate data
-  useEffect(() => {
-    const fetchCertificate = async () => {
-      if (!verificationIdParam) {
-        setError("Verification ID not provided.");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const q = query(
-          collection(firestore, "certificates"),
-          where("verificationId", "==", verificationIdParam)
-        );
-        const querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-          setError("Certificate not found.");
-          setLoading(false);
-          return;
-        }
-
-        let certData = {};
-        querySnapshot.forEach((doc) => {
-          certData = { id: doc.id, ...doc.data() };
-        });
-
-        setCertificate(certData);
-        setLoading(false);
-      } catch (err) {
-        setError("An error occurred while fetching certificate data.");
-        setLoading(false);
-      }
-    };
-
-    fetchCertificate();
-  }, [verificationIdParam]);
 
   // Function to generate PSID for certificate hardcopy request
   const generateCertificatePSID = useCallback(async () => {
@@ -514,238 +636,250 @@ const CertificateVerificationContent = () => {
               <TbFileDownload /> Download e-Certification
             </button>
           </div>
-
-          <div className="border-t border-gray-300 pt-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className=" p-2 rounded-sm">
-                <FaFileAlt className="text-primary" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-800">
-                APPLY FOR OFFICIAL STAMPED HARDCOPY CERTIFICATE
-              </h2>
-            </div>
-
-            <div className="flex items-start gap-3 mb-4 bg-yellow-50 p-4 border border-yellow-200">
-              <p className="text-gray-700">
-                Obtain your government-recognized certificate with official
-                stamp and seal, delivered to your address. Follow the procedure
-                below to apply. Upon successful payment, your certificate will
-                be processed and delivered within 14 business days.
-              </p>
-            </div>
-          </div>
         </div>
 
-        {/* Hardcopy Certificate Section */}
-        <div className="bg-white shadow-md rounded-sm border border-gray-300 p-6 mb-8">
-          <div className="flex items-center gap-3 mb-6 border-b border-gray-300 pb-4">
-            <div className="bg-green-700 p-2 rounded-sm">
-              <FaCheck className="text-white" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-800">
-              OFFICIAL CERTIFICATE REQUEST PROCESS
-            </h2>
-          </div>
-
-          <div className="mb-6">
-            <p className="text-gray-700 mb-4">
-              <span className="font-bold text-gray-900">Honhaar Jawan</span>{" "}
-              facilitates the application process for your officially stamped
-              certificate. Submit the one-time fee of 2500 PKR through any
-              authorized bank or online banking application to receive your
-              certificate via registered post within 14 business days.
-            </p>
-
-            <div className="bg-gray-50 p-4 border border-gray-300 mb-4">
-              <h3 className="font-bold text-gray-800 mb-2">PROCEDURE:</h3>
-              <ol className="list-decimal pl-5 space-y-2 text-gray-700">
-                <li>
-                  <span className="font-bold">
-                    Generate Your PSID/Consumer Number:
-                  </span>{" "}
-                  Use the form below to generate your unique identification
-                  number for payment processing.
-                </li>
-                <li>
-                  <span className="font-bold">Select Payment Method:</span>{" "}
-                  Submit payment through mobile banking applications, internet
-                  banking, or authorized bank branches.
-                </li>
-                <li>
-                  <span className="font-bold">Confirmation:</span> Upon
-                  successful transaction, your certificate will be processed for
-                  dispatch.
-                </li>
-                <li>
-                  <span className="font-bold">Delivery:</span> Your
-                  government-recognized, officially stamped certificate will be
-                  delivered through approved courier service within 14 business
-                  days of payment verification.
-                </li>
-              </ol>
-            </div>
-
-            <div className="bg-blue-50 p-4 border border-blue-200">
-              <div className="flex items-start gap-2">
-                <div className="bg-black p-0.5 rounded-full mt-1">
-                  <FaExclamation className="text-white text-xs" />
+        {/* Show Dispatch Notice if Paid, otherwise show Payment Section */}
+        {isPaid ? (
+          <CertificateDispatchNotice certificate={certificate} />
+        ) : (
+          <>
+            <div className="bg-white shadow-md rounded-sm border border-gray-300 p-6 mb-8">
+              <div className="flex items-center gap-3 mb-4">
+                <div className=" p-2 rounded-sm">
+                  <FaFileAlt className="text-primary" />
                 </div>
-                <p className="text-gray-600">
-                  <span className="font-bold">Note:</span> This is a one-time
-                  processing and delivery fee. This amount covers all
-                  administrative, verification, and delivery charges.
+                <h2 className="text-xl font-bold text-gray-800">
+                  APPLY FOR OFFICIAL STAMPED HARDCOPY CERTIFICATE
+                </h2>
+              </div>
+
+              <div className="flex items-start gap-3 mb-4 bg-yellow-50 p-4 border border-yellow-200">
+                <p className="text-gray-700">
+                  Obtain your government-recognized certificate with official
+                  stamp and seal, delivered to your address. Follow the
+                  procedure below to apply. Upon successful payment, your
+                  certificate will be processed and delivered within 14 business
+                  days.
                 </p>
               </div>
             </div>
-          </div>
 
-          {/* PSID Generation */}
-          <div className="mb-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">
-              GENERATE PSID
-            </h3>
-
-            <div className="flex flex-col md:flex-row items-center">
-              <button
-                onClick={!consumerNumber ? generateCertificatePSID : undefined}
-                disabled={isPSIDGenerating || consumerNumber}
-                className={`group relative overflow-hidden bg-primary text-white font-medium px-6 py-2 rounded-sm flex items-center gap-2 whitespace-nowrap border transition-all duration-300 ${
-                  consumerNumber
-                    ? "opacity-80 cursor-default"
-                    : "hover:bg-second"
-                } ${isPSIDGenerating ? "opacity-70 cursor-not-allowed" : ""}`}
-              >
-                {isPSIDGenerating ? (
-                  <>
-                    <ImSpinner className="animate-spin" />
-                    <span>Generating Reference</span>
-                  </>
-                ) : (
-                  <>
-                    <FaFileAlt />
-                    <span>
-                      {consumerNumber
-                        ? "PSID/Consumer Number"
-                        : "Generate Reference Number"}
-                    </span>
-                  </>
-                )}
-              </button>
-
-              {fetching ? (
-                <div className="flex items-center justify-center bg-gray-100 px-4 py-2 rounded-sm text-gray-700 border border-gray-400 w-full">
-                  <ImSpinner className="animate-spin mr-2" />
-                  Loading Reference Number...
+            {/* Hardcopy Certificate Section - Only show if not paid */}
+            <div className="bg-white shadow-md rounded-sm border border-gray-300 p-6 mb-8">
+              <div className="flex items-center gap-3 mb-6 border-b border-gray-300 pb-4">
+                <div className="bg-green-700 p-2 rounded-sm">
+                  <FaCheck className="text-white" />
                 </div>
-              ) : (
-                consumerNumber && (
-                  <div className="flex flex-col md:flex-row items-center gap-2 w-full">
-                    <div className="relative flex-grow">
-                      <div className="bg-gray-100 px-4 py-2 rounded-sm flex items-center justify-between w-full border border-gray-300">
-                        <span className="text-gray-800 font-mono">
-                          {consumerNumber}
-                        </span>
-                        <button
-                          onClick={handleCopyConsumerNumber}
-                          className="p-1 text-gray-600 hover:text-blue-800 transition-colors"
-                          title="Copy to clipboard"
-                        >
-                          <FaRegCopy />
-                        </button>
-                      </div>
-                      {showTickMark && (
-                        <div className="absolute -bottom-6 left-0 text-sm text-green-700">
-                          Copied to clipboard!
-                        </div>
-                      )}
+                <h2 className="text-xl font-bold text-gray-800">
+                  OFFICIAL CERTIFICATE REQUEST PROCESS
+                </h2>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-gray-700 mb-4">
+                  <span className="font-bold text-gray-900">Honhaar Jawan</span>{" "}
+                  facilitates the application process for your officially
+                  stamped certificate. Submit the one-time fee of 2500 PKR
+                  through any authorized bank or online banking application to
+                  receive your certificate via registered post within 14
+                  business days.
+                </p>
+
+                <div className="bg-gray-50 p-4 border border-gray-300 mb-4">
+                  <h3 className="font-bold text-gray-800 mb-2">PROCEDURE:</h3>
+                  <ol className="list-decimal pl-5 space-y-2 text-gray-700">
+                    <li>
+                      <span className="font-bold">
+                        Generate Your PSID/Consumer Number:
+                      </span>{" "}
+                      Use the form below to generate your unique identification
+                      number for payment processing.
+                    </li>
+                    <li>
+                      <span className="font-bold">Select Payment Method:</span>{" "}
+                      Submit payment through mobile banking applications,
+                      internet banking, or authorized bank branches.
+                    </li>
+                    <li>
+                      <span className="font-bold">Confirmation:</span> Upon
+                      successful transaction, your certificate will be processed
+                      for dispatch.
+                    </li>
+                    <li>
+                      <span className="font-bold">Delivery:</span> Your
+                      government-recognized, officially stamped certificate will
+                      be delivered through approved courier service within 14
+                      business days of payment verification.
+                    </li>
+                  </ol>
+                </div>
+
+                <div className="bg-blue-50 p-4 border border-blue-200">
+                  <div className="flex items-start gap-2">
+                    <div className="bg-black p-0.5 rounded-full mt-1">
+                      <FaExclamation className="text-white text-xs" />
                     </div>
+                    <p className="text-gray-600">
+                      <span className="font-bold">Note:</span> This is a
+                      one-time processing and delivery fee. This amount covers
+                      all administrative, verification, and delivery charges.
+                    </p>
                   </div>
-                )
-              )}
-            </div>
-
-            {apiError && (
-              <div className="mt-4 p-3 bg-red-100 text-red-800 rounded-sm text-center border border-red-300">
-                Error: {apiError}
+                </div>
               </div>
-            )}
-          </div>
 
-          {/* Payment Instructions */}
-          <div className="mb-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">
-              PAYMENT INSTRUCTIONS
-            </h3>
-            <PayproPaymentVideos />
-          </div>
+              {/* PSID Generation */}
+              <div className="mb-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">
+                  GENERATE PSID
+                </h3>
 
-          {/* Payment Status Check */}
-          {consumerNumber && (
-            <div className="mb-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">
-                VERIFY PAYMENT STATUS
-              </h3>
-              <div className="text-center">
-                <button
-                  onClick={checkInvoiceStatus}
-                  disabled={invoiceLoading}
-                  className={`group relative overflow-hidden bg-primary text-white py-2 px-6 rounded-sm transition-colors font-bold border hover:bg-second transform hover:-translate-y-0.5 transition-all duration-300 ${
-                    invoiceLoading
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-blue-900"
-                  }`}
-                >
-                  {invoiceLoading ? (
-                    <span className="flex items-center justify-center">
-                      <ImSpinner className="animate-spin mr-2" />
-                      Verifying Status...
-                    </span>
-                  ) : (
-                    "Check Payment Verification Status"
-                  )}
-                </button>
-
-                {invoiceStatus && (
-                  <div
-                    className={`mt-4 p-3 rounded-sm text-center font-medium border ${
-                      invoiceStatus === "PAID"
-                        ? "bg-green-100 text-green-800 border-green-300"
-                        : invoiceStatus === "UNPAID"
-                          ? "bg-yellow-100 text-yellow-800 border-yellow-300"
-                          : "bg-red-100 text-red-800 border-red-300"
-                    }`}
+                <div className="flex flex-col md:flex-row items-center">
+                  <button
+                    onClick={
+                      !consumerNumber ? generateCertificatePSID : undefined
+                    }
+                    disabled={isPSIDGenerating || consumerNumber}
+                    className={`group relative overflow-hidden bg-primary text-white font-medium px-6 py-2 rounded-sm flex items-center gap-2 whitespace-nowrap border transition-all duration-300 ${
+                      consumerNumber
+                        ? "opacity-80 cursor-default"
+                        : "hover:bg-second"
+                    } ${isPSIDGenerating ? "opacity-70 cursor-not-allowed" : ""}`}
                   >
-                    Transaction Status: {invoiceStatus}
+                    {isPSIDGenerating ? (
+                      <>
+                        <ImSpinner className="animate-spin" />
+                        <span>Generating Reference</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaFileAlt />
+                        <span>
+                          {consumerNumber
+                            ? "PSID/Consumer Number"
+                            : "Generate Reference Number"}
+                        </span>
+                      </>
+                    )}
+                  </button>
+
+                  {fetching ? (
+                    <div className="flex items-center justify-center bg-gray-100 px-4 py-2 rounded-sm text-gray-700 border border-gray-400 w-full">
+                      <ImSpinner className="animate-spin mr-2" />
+                      Loading Reference Number...
+                    </div>
+                  ) : (
+                    consumerNumber && (
+                      <div className="flex flex-col md:flex-row items-center gap-2 w-full">
+                        <div className="relative flex-grow">
+                          <div className="bg-gray-100 px-4 py-2 rounded-sm flex items-center justify-between w-full border border-gray-300">
+                            <span className="text-gray-800 font-mono">
+                              {consumerNumber}
+                            </span>
+                            <button
+                              onClick={handleCopyConsumerNumber}
+                              className="p-1 text-gray-600 hover:text-blue-800 transition-colors"
+                              title="Copy to clipboard"
+                            >
+                              <FaRegCopy />
+                            </button>
+                          </div>
+                          {showTickMark && (
+                            <div className="absolute -bottom-6 left-0 text-sm text-green-700">
+                              Copied to clipboard!
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+
+                {apiError && (
+                  <div className="mt-4 p-3 bg-red-100 text-red-800 rounded-sm text-center border border-red-300">
+                    Error: {apiError}
                   </div>
                 )}
               </div>
-            </div>
-          )}
 
-          {/* Important Notice */}
-          <div className="bg-yellow-50 p-4 border border-yellow-300 rounded-sm">
-            <div className="flex items-start gap-2">
-              <div className="bg-blue-800 p-1 rounded-full mt-1">
-                <FaExclamation className="text-white text-xs" />
+              {/* Payment Instructions */}
+              <div className="mb-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">
+                  PAYMENT INSTRUCTIONS
+                </h3>
+                <PayproPaymentVideos />
               </div>
-              <div>
-                <h4 className="font-bold text-gray-800 mb-2">
-                  IMPORTANT NOTICE
-                </h4>
-                <p className="text-gray-700 text-sm">
-                  After submitting your certificate fee, no further action is
-                  required from your end. Please allow up to 30 minutes for
-                  transaction processing. You will receive a confirmation
-                  notification upon successful processing. If you do not receive
-                  confirmation within 30 minutes, please check your application
-                  status in your account dashboard. For unresolved issues,
-                  contact our support desk at {SiteDetails.supportEmail} during
-                  official working hours (9:00 AM to 5:00 PM, Monday to Saturday).
-                </p>
+
+              {/* Payment Status Check */}
+              {consumerNumber && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">
+                    VERIFY PAYMENT STATUS
+                  </h3>
+                  <div className="text-center">
+                    <button
+                      onClick={checkInvoiceStatus}
+                      disabled={invoiceLoading}
+                      className={`group relative overflow-hidden bg-primary text-white py-2 px-6 rounded-sm transition-colors font-bold border hover:bg-second transform hover:-translate-y-0.5 transition-all duration-300 ${
+                        invoiceLoading
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-blue-900"
+                      }`}
+                    >
+                      {invoiceLoading ? (
+                        <span className="flex items-center justify-center">
+                          <ImSpinner className="animate-spin mr-2" />
+                          Verifying Status...
+                        </span>
+                      ) : (
+                        "Check Payment Verification Status"
+                      )}
+                    </button>
+
+                    {invoiceStatus && (
+                      <div
+                        className={`mt-4 p-3 rounded-sm text-center font-medium border ${
+                          invoiceStatus === "PAID"
+                            ? "bg-green-100 text-green-800 border-green-300"
+                            : invoiceStatus === "UNPAID"
+                              ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+                              : "bg-red-100 text-red-800 border-red-300"
+                        }`}
+                      >
+                        Transaction Status: {invoiceStatus}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Important Notice */}
+              <div className="bg-yellow-50 p-4 border border-yellow-300 rounded-sm">
+                <div className="flex items-start gap-2">
+                  <div className="bg-blue-800 p-1 rounded-full mt-1">
+                    <FaExclamation className="text-white text-xs" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-800 mb-2">
+                      IMPORTANT NOTICE
+                    </h4>
+                    <p className="text-gray-700 text-sm">
+                      After submitting your certificate fee, no further action
+                      is required from your end. Please allow up to 30 minutes
+                      for transaction processing. You will receive a
+                      confirmation notification upon successful processing. If
+                      you do not receive confirmation within 30 minutes, please
+                      check your application status in your account dashboard.
+                      For unresolved issues, contact our support desk at{" "}
+                      {SiteDetails.supportEmail} during official working hours
+                      (9:00 AM to 5:00 PM, Monday to Saturday).
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </main>
       <Copyright />
     </div>
