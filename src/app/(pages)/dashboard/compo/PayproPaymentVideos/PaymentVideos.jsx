@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaImage, FaTimes } from "react-icons/fa";
+import { FaImage, FaTimes, FaChevronRight } from "react-icons/fa";
 
 const PayproPaymentImages = ({ isDownloadButton, user }) => {
   const [selectedBank, setSelectedBank] = useState(null);
@@ -155,37 +155,36 @@ const PayproPaymentImages = ({ isDownloadButton, user }) => {
       {/* Bank Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {bankImages.map((bank) => (
-          <div
+          <motion.div
             key={bank.id}
-            whileHover={{ scale: 1.05, y: -5 }}
-            whileTap={{ scale: 0.95 }}
-            className="group bg-white rounded-2xl shadow-md hover:shadow-xl flex items-center transition-all duration-300 cursor-pointer border border-gray-200 overflow-hidden"
+            whileHover={{ y: -5 }}
+            whileTap={{ scale: 0.98 }}
+            className="group bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 flex flex-col h-full"
             onClick={() => handleBankClick(bank)}
           >
-            <div className="flex flex-col items-center p-4">
-              <div className="flex gap-3 w-full items-center">
-                <div className="w-12 h-12">
-                  <img src={bank.thumbnail} className="" alt={bank.bankName} />
-                </div>
-
-                <p className="text-sm font-semibold text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
+            <div className="p-4 flex items-center gap-3 flex-1">
+              <div className="w-12 h-12 flex-shrink-0 bg-gray-50 rounded-lg p-1.5 flex items-center justify-center border border-gray-100">
+                <img
+                  src={bank.thumbnail}
+                  className="w-full h-full object-contain"
+                  alt={bank.bankName}
+                />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-semibold text-gray-800 text-sm group-hover:text-blue-600 transition-colors line-clamp-2">
                   {bank.bankName}
-                </p>
-              </div>
-              <div className="mt-2 lg:hidden transition-opacity duration-300">
-                <div className="flex items-center gap-1 text-xs text-blue-600 font-medium">
-                  <FaImage className="text-xs" />
-                  <span>View Guide</span>
-                </div>
-              </div>
-              <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="flex items-center gap-1 text-xs text-blue-600 font-medium">
-                  <FaImage className="text-xs" />
-                  <span>View Guide</span>
-                </div>
+                </h4>
               </div>
             </div>
-          </div>
+
+            <div className="bg-gray-50 px-4 py-2.5 border-t border-gray-100 flex items-center justify-between group-hover:bg-blue-50 transition-colors">
+              <div className="flex items-center gap-2 text-xs font-medium text-gray-600 group-hover:text-blue-600">
+                <FaImage className="text-gray-400 group-hover:text-blue-500" />
+                <span>View Guide</span>
+              </div>
+              <FaChevronRight className="text-[10px] text-gray-400 group-hover:text-blue-500 transform group-hover:translate-x-1 transition-all" />
+            </div>
+          </motion.div>
         ))}
       </div>
 
