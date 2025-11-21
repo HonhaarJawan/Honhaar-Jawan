@@ -1111,21 +1111,39 @@ const EmailTemplateList = () => {
     },
     [templates, selectedSearchFolder, findReplaceOptions]
   );
-  // Optimized template saving with better error handling
+
+  // Optimized cancel edit
+  const handleCancelEdit = useCallback(() => {
+    setIsEditing(false);
+    setIsCreating(false);
+    setSelectedTemplateId(null);
+    setEditedContent("");
+    setEditedSubject("");
+    setNewTemplateName("");
+    setIsEditorFullscreen(false);
+    setEditingTemplateId(null);
+    setEditingTemplateName("");
+    setUseAdvancedEditor(false);
+    setHasUnsavedChanges(false);
+  }, []);
+  // Fixed handleSaveTemplate function
   const handleSaveTemplate = useCallback(async () => {
     if (!selectedTemplateId && !isCreating) {
       showToast("No template selected to save.", "warning");
       return;
     }
+
     if (!editedContent.trim()) {
       showToast("Template content cannot be empty.", "warning");
       return;
     }
+
     if (isCreating) {
       if (!newTemplateName.trim()) {
         showToast("Template name is required.", "warning");
         return;
       }
+
       // Check if template with this name already exists
       const existingTemplate = templates.find(
         (t) => t.id === newTemplateName.trim()
@@ -1134,18 +1152,27 @@ const EmailTemplateList = () => {
         showToast("A template with this name already exists.", "error");
         return;
       }
+
       setAddingTemplate(true);
       setErrorMessage("");
       try {
-        await setDoc(
-          doc(firestore, "email_templates", newTemplateName.trim()),
-          {
-            template: editedContent,
-            subject: editedSubject || "No Subject",
-            createdAt: serverTimestamp(),
-            folderId: selectedFolder !== "all" ? selectedFolder : null,
-          }
+        // Use setDoc with custom document ID instead of addDoc
+        const templateRef = doc(
+          firestore,
+          "email_templates",
+          newTemplateName.trim()
         );
+
+        // Ensure folderId is a string, not an event object
+        const folderIdValue = selectedFolder === "all" ? null : selectedFolder;
+
+        await setDoc(templateRef, {
+          template: editedContent,
+          subject: editedSubject || "No Subject",
+          createdAt: serverTimestamp(),
+          folderId: folderIdValue,
+        });
+
         await fetchTemplates();
         showToast("New template added successfully!", "success");
         handleCancelEdit();
@@ -1169,6 +1196,7 @@ const EmailTemplateList = () => {
           subject: editedSubject,
           lastModified: serverTimestamp(),
         };
+
         // Save current version to history before updating
         if (selectedTemplate) {
           await saveTemplateVersion(
@@ -1177,6 +1205,7 @@ const EmailTemplateList = () => {
             "Manual edit"
           );
         }
+
         await updateDoc(templateRef, templateData);
         await fetchTemplates();
         showToast("Template saved successfully!", "success");
@@ -1197,27 +1226,13 @@ const EmailTemplateList = () => {
     editedSubject,
     newTemplateName,
     templates,
-    selectedFolder,
+    selectedFolder, // This was causing the issue - it was an event object
     selectedTemplate,
     fetchTemplates,
     saveTemplateVersion,
     showToast,
+    handleCancelEdit,
   ]);
-  // Optimized cancel edit
-  const handleCancelEdit = useCallback(() => {
-    setIsEditing(false);
-    setIsCreating(false);
-    setSelectedTemplateId(null);
-    setEditedContent("");
-    setEditedSubject("");
-    setNewTemplateName("");
-    setIsEditorFullscreen(false);
-    setEditingTemplateId(null);
-    setEditingTemplateName("");
-    setUseAdvancedEditor(false);
-    setHasUnsavedChanges(false);
-  }, []);
-  // Start creating new template
   const handleStartCreating = useCallback((folderId = null) => {
     setIsCreating(true);
     setIsEditing(true);
@@ -1227,8 +1242,12 @@ const EmailTemplateList = () => {
     setNewTemplateName("");
     setUseAdvancedEditor(false);
     setHasUnsavedChanges(false);
-    if (folderId) {
+
+    // Ensure folderId is a string, not an event object
+    if (folderId && typeof folderId === "string") {
       setSelectedFolder(folderId);
+    } else if (folderId === null) {
+      setSelectedFolder("all");
     }
   }, []);
   // Template selection with unsaved changes check
@@ -1422,18 +1441,30 @@ const EmailTemplateList = () => {
       setTemplateToDeleteId(null);
     }
   }, [templateToDeleteId, selectedTemplateId, fetchTemplates, showToast]);
-  // Email management
+  // Fixed handleAddNewEmail function with better validation
   const handleAddNewEmail = useCallback(() => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(newEmailInput)) {
-      setEmailErrors({ newEmail: "Invalid email format" });
-      showToast("Invalid email format.", "error");
+
+    if (!newEmailInput.trim()) {
+      setEmailErrors({ newEmail: "Email is required" });
+      showToast("Email is required", "error");
       return;
     }
-    if (newEmailInput && !testEmails.includes(newEmailInput)) {
-      setTestEmails([...testEmails, newEmailInput]);
-      setSelectedEmail(newEmailInput);
+
+    if (!emailRegex.test(newEmailInput)) {
+      setEmailErrors({ newEmail: "Invalid email format" });
+      showToast("Invalid email format", "error");
+      return;
     }
+
+    if (testEmails.includes(newEmailInput)) {
+      setEmailErrors({ newEmail: "Email already exists" });
+      showToast("Email already exists", "warning");
+      return;
+    }
+
+    setTestEmails([...testEmails, newEmailInput]);
+    setSelectedEmail(newEmailInput);
     setNewEmailInput("");
     setShowEmailModal(false);
     setEmailErrors({});
@@ -1458,24 +1489,40 @@ const EmailTemplateList = () => {
     },
     [composeRecipients]
   );
+  // Fixed handleSendComposedEmail function with better validation
   const handleSendComposedEmail = useCallback(async () => {
     if (composeRecipients.length === 0) {
       showToast("Please add at least one recipient.", "warning");
       return;
     }
+
     if (!composeSubject.trim()) {
       showToast("Subject is required.", "warning");
       return;
     }
+
     if (!composeContent.trim()) {
       showToast("Email content is required.", "warning");
       return;
     }
+
+    // Validate email format for all recipients
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const invalidEmails = composeRecipients.filter(
+      (email) => !emailRegex.test(email)
+    );
+
+    if (invalidEmails.length > 0) {
+      showToast(`Invalid email format: ${invalidEmails.join(", ")}`, "error");
+      return;
+    }
+
     // Parse the placeholders input
     let placeholdersObj = {
       fullName: testEmailName,
       companyName: companyName,
     };
+
     // Add custom placeholders if provided
     if (composePlaceholders.trim()) {
       try {
@@ -1498,6 +1545,7 @@ const EmailTemplateList = () => {
         return;
       }
     }
+
     setSendingTestEmail(true);
     try {
       const response = await fetch(`/api/sendMail`, {
@@ -1512,6 +1560,7 @@ const EmailTemplateList = () => {
           placeholders: placeholdersObj,
         }),
       });
+
       const data = await response.json();
       if (response.ok && data.success) {
         showToast(
@@ -1569,15 +1618,27 @@ const EmailTemplateList = () => {
       handleFileUpload(files[0]);
     }
   }, []);
+  // Fixed handleFileUpload function
   const handleFileUpload = useCallback(
     (file) => {
-      if (file.type !== "text/html") {
+      if (!file) {
+        showToast("No file selected", "error");
+        return;
+      }
+
+      if (file.type !== "text/html" && !file.name.endsWith(".html")) {
         showToast("Please upload an HTML file", "error");
         return;
       }
+
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target.result;
+        if (!content) {
+          showToast("Failed to read file content", "error");
+          return;
+        }
+
         if (isCreating) {
           setEditedContent(content);
         } else if (isEditing) {
@@ -1585,6 +1646,11 @@ const EmailTemplateList = () => {
         }
         showToast("HTML file imported successfully!", "success");
       };
+
+      reader.onerror = () => {
+        showToast("Error reading file", "error");
+      };
+
       reader.readAsText(file);
     },
     [isCreating, isEditing, showToast]
@@ -1601,11 +1667,13 @@ const EmailTemplateList = () => {
   const triggerFileInput = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
-  // Enhanced Editor Features
+  // Fixed handleFormatCode function with proper prettier import
   const handleFormatCode = useCallback(async () => {
     try {
-      const prettier = await import("prettier/standalone");
-      const htmlParser = await import("prettier/parser-html");
+      // Import prettier dynamically to avoid SSR issues
+      const { default: prettier } = await import("prettier/standalone");
+      const { default: htmlParser } = await import("prettier/parser-html");
+
       const formattedCode = prettier.format(editedContent, {
         parser: "html",
         plugins: [htmlParser],
@@ -1613,6 +1681,7 @@ const EmailTemplateList = () => {
         tabWidth: 2,
         useTabs: false,
       });
+
       setEditedContent(formattedCode);
       showToast("Code formatted successfully!", "success");
     } catch (error) {
@@ -1620,6 +1689,7 @@ const EmailTemplateList = () => {
       showToast("Error formatting code", "error");
     }
   }, [editedContent, showToast]);
+
   // Folder Management
   const handleCreateFolder = useCallback(async () => {
     if (!newFolderName.trim()) {
@@ -1645,8 +1715,12 @@ const EmailTemplateList = () => {
     async (templateId, folderId) => {
       try {
         setMovingTemplate(templateId);
+
+        // Ensure folderId is a string, not an event object
+        const folderIdValue = folderId === "none" ? null : folderId;
+
         await updateDoc(doc(firestore, "email_templates", templateId), {
-          folderId: folderId === "none" ? null : folderId,
+          folderId: folderIdValue,
         });
         await fetchTemplates();
         showToast("Template moved to folder successfully!", "success");
@@ -1758,46 +1832,63 @@ const EmailTemplateList = () => {
     setEditingTemplateId(null);
     setEditingTemplateName("");
   }, []);
+
+  // Fixed handleUpdateTemplateId function
   const handleUpdateTemplateId = useCallback(
     async (oldTemplateId, newTemplateId) => {
       if (!newTemplateId.trim()) {
         showToast("Template ID is required", "warning");
         return;
       }
+
       if (newTemplateId === oldTemplateId) {
         setEditingTemplateId(null);
         setEditingTemplateName("");
         return;
       }
+
       try {
         // Check if new template ID already exists
         const newTemplateRef = doc(firestore, "email_templates", newTemplateId);
         const newTemplateSnap = await getDoc(newTemplateRef);
+
         if (newTemplateSnap.exists()) {
           showToast("Template ID already exists", "error");
           setEditingTemplateName(oldTemplateId); // Reset to original name
           return;
         }
+
         // Get current template data
         const oldTemplateRef = doc(firestore, "email_templates", oldTemplateId);
         const oldTemplateSnap = await getDoc(oldTemplateRef);
+
+        if (!oldTemplateSnap.exists()) {
+          showToast("Original template not found", "error");
+          return;
+        }
+
         const templateData = oldTemplateSnap.data();
+
         // Save version before renaming
         await saveTemplateVersion(
           oldTemplateId,
           templateData,
           `Before renaming to ${newTemplateId}`
         );
+
         // Create new template with updated ID
         await setDoc(newTemplateRef, {
           ...templateData,
+          id: newTemplateId, // Update the ID field
           lastModified: serverTimestamp(),
         });
+
         // Copy version history if exists
         try {
           const versionsSnapshot = await getDocs(
             collection(firestore, "email_templates", oldTemplateId, "versions")
           );
+
           for (const versionDoc of versionsSnapshot.docs) {
             await setDoc(
               doc(
@@ -1806,7 +1897,8 @@ const EmailTemplateList = () => {
                   "email_templates",
                   newTemplateId,
                   "versions"
-                )
+                ),
+                versionDoc.id
               ),
               versionDoc.data()
             );
@@ -1814,6 +1906,7 @@ const EmailTemplateList = () => {
         } catch (error) {
           console.log("No version history to copy");
         }
+
         // Delete old template
         await deleteDoc(oldTemplateRef);
         await fetchTemplates();
@@ -2316,11 +2409,18 @@ const EmailTemplateList = () => {
   // Memoized TemplateCard component
   const TemplateCard = React.memo(({ template }) => {
     const [isMoving, setIsMoving] = useState(false);
-    const handleMoveToFolder = async (templateId, folderId) => {
+
+    const handleMoveToFolder = async (e, templateId, folderId) => {
+      e.stopPropagation(); // Prevent event bubbling
+
       try {
         setIsMoving(true);
+
+        // Ensure folderId is a string, not an event object
+        const folderIdValue = folderId === "none" ? null : folderId;
+
         await updateDoc(doc(firestore, "email_templates", templateId), {
-          folderId: folderId === "none" ? null : folderId,
+          folderId: folderIdValue,
         });
         await fetchTemplates();
         showToast("Template moved to folder successfully!", "success");
@@ -2331,6 +2431,7 @@ const EmailTemplateList = () => {
         setIsMoving(false);
       }
     };
+
     const handleEditSubject = async (newSubject) => {
       try {
         await updateDoc(doc(firestore, "email_templates", template.id), {
@@ -2343,14 +2444,15 @@ const EmailTemplateList = () => {
         showToast("Failed to update subject", "error");
       }
     };
+
     return (
       <motion.div
         className={`relative p-2.5 rounded-md border transition-all duration-200 text-[13px] leading-tight
-          ${
-            selectedTemplateId === template.id
-              ? "border-primary bg-primary/10 shadow-sm"
-              : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
-          }`}
+        ${
+          selectedTemplateId === template.id
+            ? "border-primary bg-primary/10 shadow-sm"
+            : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
+        }`}
         whileHover={{ y: -1 }}
         onContextMenu={(e) => handleContextMenu(e, "template", template)}
       >
@@ -2485,7 +2587,7 @@ const EmailTemplateList = () => {
           </button>
           <select
             value={template.folderId || "none"}
-            onChange={(e) => handleMoveToFolder(template.id, e.target.value)}
+            onChange={(e) => handleMoveToFolder(e, template.id, e.target.value)}
             disabled={isMoving}
             className="py-1 px-2 text-[12px] border border-gray-300 rounded bg-white focus:ring-1 focus:ring-primary focus:border-primary"
           >
@@ -3377,10 +3479,7 @@ const EmailTemplateList = () => {
                             </div>
                           </div>
                           {/* Editor Content with SplitPane */}
-                          <div
-                            className="flex flex-col bg-gray-50 rounded-b-lg"
-                            style={{ height: "750px" }}
-                          >
+                          <div className="flex flex-col overflow-y-auto bg-gray-50 rounded-b-lg h-full">
                             <div className="p-3 border-b border-gray-200">
                               <label className="block text-sm font-medium mb-1 text-gray-700">
                                 Subject
