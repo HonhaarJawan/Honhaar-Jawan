@@ -237,71 +237,71 @@ const CertificateVerificationContent = () => {
   ]);
 
   // Check invoice status function
-const checkInvoiceStatus = useCallback(async () => {
-  setInvoiceLoading(true);
+  const checkInvoiceStatus = useCallback(async () => {
+    setInvoiceLoading(true);
 
-  try {
-    const response = await fetch("/api/certificate-check-psid-status", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        invoiceNumber: certificate?.generatedPayProId?.invoiceNumber,
-      }),
-    });
+    try {
+      const response = await fetch("/api/certificate-check-psid-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invoiceNumber: certificate?.generatedPayProId?.invoiceNumber,
+        }),
+      });
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (response.ok) {
-      // The actual transaction status is nested inside result.data.transaction.transactionStatus
-      const transactionStatus =
-        result.data?.transaction?.transactionStatus || "unknown";
+      if (response.ok) {
+        // The actual transaction status is nested inside result.data.transaction.transactionStatus
+        const transactionStatus =
+          result.data?.transaction?.transactionStatus || "unknown";
 
-      // Normalize status to lowercase for case-insensitive comparison
-      const orderStatus = transactionStatus.toLowerCase();
-      setInvoiceStatus(orderStatus.toUpperCase()); // Keep uppercase for display if needed
+        // Normalize status to lowercase for case-insensitive comparison
+        const orderStatus = transactionStatus.toLowerCase();
+        setInvoiceStatus(orderStatus.toUpperCase()); // Keep uppercase for display if needed
 
-      // Only update user status if payment is truly successful
-      if (orderStatus === "success") {
-        const certRef = doc(firestore, "certificates", verificationIdParam);
-        await updateDoc(certRef, {
-          status: "paid",
-          paidAt: new Date().toISOString(),
-        });
+        // Only update user status if payment is truly successful
+        if (orderStatus === "success") {
+          const certRef = doc(firestore, "certificates", verificationIdParam);
+          await updateDoc(certRef, {
+            status: "paid",
+            paidAt: new Date().toISOString(),
+          });
 
-        showToast(
-          "Your certificate fee has been processed successfully. Certificate will be dispatched soon!",
-          "success"
-        );
-      } else if (orderStatus === "pending") {
-        // For pending status, show message but don't update user status
-        showToast("Your payment is pending.", "warning");
-      } else if (orderStatus === "unpaid") {
-        showToast(
-          "Please complete the payment for your certificate or contact our helpline for assistance.",
-          "warning"
-        );
+          showToast(
+            "Your certificate fee has been processed successfully. Certificate will be dispatched soon!",
+            "success"
+          );
+        } else if (orderStatus === "pending") {
+          // For pending status, show message but don't update user status
+          showToast("Your payment is pending.", "warning");
+        } else if (orderStatus === "unpaid") {
+          showToast(
+            "Please complete the payment for your certificate or contact our helpline for assistance.",
+            "warning"
+          );
+        } else {
+          showToast(
+            "We are unable to retrieve the status for the provided PSID. Please contact our helpline for assistance.",
+            "error"
+          );
+        }
       } else {
-        showToast(
-          "We are unable to retrieve the status for the provided PSID. Please contact our helpline for assistance.",
-          "error"
-        );
+        showToast(result.error || "Failed to check invoice status", "error");
       }
-    } else {
-      showToast(result.error || "Failed to check invoice status", "error");
+    } catch (error) {
+      console.error("Error checking invoice status:", error);
+      showToast(
+        "Failed to connect to the server. Please try again later.",
+        "error"
+      );
+    } finally {
+      setTimeout(() => {
+        setInvoiceLoading(false);
+        setInvoiceStatus(null);
+      }, 2000);
     }
-  } catch (error) {
-    console.error("Error checking invoice status:", error);
-    showToast(
-      "Failed to connect to the server. Please try again later.",
-      "error"
-    );
-  } finally {
-    setTimeout(() => {
-      setInvoiceLoading(false);
-      setInvoiceStatus(null);
-    }, 2000);
-  }
-}, [certificate, verificationIdParam, showToast]);
+  }, [certificate, verificationIdParam, showToast]);
   const handleCopyConsumerNumber = () => {
     navigator.clipboard.writeText(`${consumerNumber}`);
     setShowTickMark(true);
@@ -371,7 +371,7 @@ const checkInvoiceStatus = useCallback(async () => {
                   <img
                     src="/certificate.webp"
                     alt="Certificate Background"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full "
                     onError={(e) => {
                       console.error("Image failed to load");
                       // Fallback to a solid color if image fails
@@ -382,21 +382,21 @@ const checkInvoiceStatus = useCallback(async () => {
                   />
                 </div>
 
-                <div className="absolute top-[38%] text-gray-500 tracking-widest left-0 right-0 text-center">
+                <div className="absolute top-[38.5%] text-gray-500 tracking-widest left-0 right-0 text-center">
                   <h2
-                    className="text-lg font-black"
+                    className="text-3xl font-black"
                     style={{ fontFamily: "Times New Roman, serif" }}
                   >
                     {fullName || "Loading..."}
                   </h2>
                 </div>
 
-                <div className="absolute top-[65.8%] left-0 right-0 text-center max-w-md mx-auto">
+                <div className="absolute top-[65.25%] left-0 right-0 text-center max-w-md mx-auto">
                   <p
-                    className="text-xs"
+                    className="text-lg"
                     style={{ fontFamily: "Times New Roman, serif" }}
                   >
-                    <span className="font-bold text-gray-800 text-xs">
+                    <span className="font-bold text-gray-800 text-lg">
                       {certificate?.courseName ||
                         certificate?.name ||
                         "Loading..."}{" "}
@@ -407,20 +407,21 @@ const checkInvoiceStatus = useCallback(async () => {
                 </div>
                 <div className="absolute top-[45.5%] left-0 right-0 text-center max-w-md mx-auto">
                   <p
-                    className="text-xs"
+                    className="text-[17px] text-white"
                     style={{ fontFamily: "Times New Roman, serif" }}
                   >
                     in recognition of her/his hard work in attending and
                     dedication in completing of{" "}
-                    <span className="font-bold text-gray-800 text-xs">
+                    <span className="font-bold text-white text-[17px]">
                       {certificate?.courseName ||
                         certificate?.name ||
                         "Loading..."}{" "}
                       Course
                     </span>
                     <br />
-                    <span className="font-medium text-gray-600">
-                      on {formatReadableDate(certificate?.issuedAt || "")}
+                    on{" "}
+                    <span className="font-medium font-bold text-white">
+                      {formatReadableDate(certificate?.issuedAt || "")}
                     </span>
                     .
                   </p>
@@ -428,7 +429,7 @@ const checkInvoiceStatus = useCallback(async () => {
 
                 <div className="absolute top-[58.5%] left-0 right-0 text-center">
                   <p
-                    className="text-xs font-semibold"
+                    className="text-lg font-semibold"
                     style={{ fontFamily: "Times New Roman, serif" }}
                   >
                     <span className="text-gray-600 tracking-wide">
@@ -439,7 +440,7 @@ const checkInvoiceStatus = useCallback(async () => {
                 </div>
                 <div className="absolute top-[78.5%] text-gray-600 right-[35%] left-0 text-center">
                   <p
-                    className="text-xs font-semibold"
+                    className="text-lg font-semibold"
                     style={{ fontFamily: "Times New Roman, serif" }}
                   >
                     {formatReadableDate(certificate?.issuedAt || "")}
@@ -739,7 +740,7 @@ const checkInvoiceStatus = useCallback(async () => {
                   confirmation within 30 minutes, please check your application
                   status in your account dashboard. For unresolved issues,
                   contact our support desk at {SiteDetails.supportEmail} during
-                  official working hours (9:00 AM to 5:00 PM, Monday to Friday).
+                  official working hours (9:00 AM to 5:00 PM, Monday to Saturday).
                 </p>
               </div>
             </div>

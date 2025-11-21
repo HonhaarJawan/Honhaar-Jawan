@@ -41,7 +41,7 @@ const calculateClassDelay = (admissionDate) => {
   if (day >= 1 && day < 10) {
     daysToAdd = 20 - day;
   } else if (day >= 10 && day < 20) {
-    daysToAdd = 32 - day;
+    daysToAdd = 31 - day;
   } else if (
     (day >= 20 && day < 31) ||
     (day >= 20 && day < 30) ||
