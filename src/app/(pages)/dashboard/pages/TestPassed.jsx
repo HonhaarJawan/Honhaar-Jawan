@@ -191,7 +191,7 @@ const Testpassed = ({ user }) => {
           );
         } else if (orderStatus === "pending") {
           // For pending status, show message but don't update user status
-          showToast("Your payment is .", "error");
+          showToast("Action Required: Your Payment is Currently Pending!", "error");
         } else if (orderStatus === "unpaid") {
           showToast(
             "Please complete the payment for your Consumer Number or contact our helpline for assistance.",

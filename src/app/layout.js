@@ -142,7 +142,7 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    creator: "@pftp",
+    creator: "@honhaarjawan",
     images: ["/favicon.ico"],
     title:
       "Honhaar Jawan, a flagship initiative by the Government of Jawan, provides free online and on-campus training in IT, freelancing, digital marketing, and technical skills to empower youth with career-ready opportunities.",

@@ -217,7 +217,7 @@ const sendInitialEnrollmentEmail = async (userData) => {
         process.env.NODE_ENV === "development"
           ? `http://localhost:3000/api/sendMail`
           : process.env.NODE_ENV === "production" &&
-              "https://honhaarjawan.pk/api/sendMail",
+              "https://honhaarjawan.pk/api/sendMail" && "https://honhaarjawan.vercel.app",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -255,7 +255,7 @@ const sendAdditionalEnrollmentEmail = async (userData, addedCourses) => {
         process.env.NODE_ENV === "development"
           ? `http://localhost:3000/api/sendMail`
           : process.env.NODE_ENV === "production" &&
-              "https://honhaarjawan.pk/api/sendMail",
+              "https://honhaarjawan.pk/api/sendMail" && "https://honhaarjawan.vercel.app",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -292,7 +292,7 @@ const sendCertificateEmail = async (certificateData, completionDate) => {
         process.env.NODE_ENV === "development"
           ? `http://localhost:3000/api/sendMail`
           : process.env.NODE_ENV === "production" &&
-              "https://honhaarjawan.pk/api/sendMail",
+              "https://honhaarjawan.pk/api/sendMail" && "https://honhaarjawan.vercel.app",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1108,7 +1108,7 @@ export async function POST(req) {
           process.env.NODE_ENV === "development"
             ? `http://localhost:3000/api/pabbly-connect/initial-enrollment`
             : process.env.NODE_ENV === "production" &&
-                "https://honhaarjawan.pk/api/pabbly-connect/initial-enrollment",
+                "https://honhaarjawan.pk/api/pabbly-connect/initial-enrollment" && "https://honhaarjawan.vercel.app/api/pabbly-connect/initial-enrollment",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
