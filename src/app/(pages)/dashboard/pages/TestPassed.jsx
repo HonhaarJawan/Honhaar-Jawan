@@ -191,7 +191,10 @@ const Testpassed = ({ user }) => {
           );
         } else if (orderStatus === "pending") {
           // For pending status, show message but don't update user status
-          showToast("Action Required: Your Payment is Currently Pending!", "error");
+          showToast(
+            "Action Required: Your Payment is Currently Pending!",
+            "error"
+          );
         } else if (orderStatus === "unpaid") {
           showToast(
             "Please complete the payment for your Consumer Number or contact our helpline for assistance.",
@@ -383,17 +386,30 @@ const Testpassed = ({ user }) => {
         router.push(
           `/dashboard/bank-challan?psid=${generatedPayProId.consumerNumber}`
         );
-        return;
+      } else if (!generatedPayProId?.consumerNumber) {
+        const newPayProId = await generatePSID(true);
+        const userRef = doc(firestore, "users", user.email);
+        await updateDoc(userRef, {
+          "generatedPayProId.challanGenerated": true,
+        });
+
+        // Update local state
+        setGeneratedPayProId((prev) => ({
+          ...prev,
+          challanGenerated: true,
+        }));
+
+        router.push(
+          `/dashboard/bank-challan?psid=${newPayProId}`
+        );
+      } else if (
+        generatedPayProId?.consumerNumber &&
+        generatedPayProId.challanGenerated
+      ) {
+        router.push(
+          `/dashboard/bank-challan?psid=${generatedPayProId.consumerNumber}`
+        );
       }
-
-      // If no PayPro ID exists, generate a new one specifically for challan
-      const newPayProId = await generatePSID(true);
-
-      // Fake loading animation for better UX
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-
-      // Redirect to bank challan page with new PSID
-      router.push(`/dashboard/bank-challan?psid=${newPayProId}`);
     } catch (error) {
       console.error("Error generating challan:", error);
       showToast("Error generating bank challan", "error");

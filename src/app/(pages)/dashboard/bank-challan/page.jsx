@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { FaArrowLeft, FaDownload, FaPrint } from "react-icons/fa";
+import { FaArrowLeft, FaPrint } from "react-icons/fa";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import Link from "next/link";
@@ -14,75 +14,6 @@ const ChallanPageGov2 = ({ type }) => {
   const [isPrinting, setIsPrinting] = useState(false);
   const challanRef = useRef(null);
   const user = useAuthStore((state) => state.user);
-
-  if (!user) {
-    return <div>Loading...</div>;
-  }
-
-  useEffect(() => {
-    const printChallan = async () => {
-      setIsPrinting(true);
-      try {
-        const cardsContainer =
-          challanRef.current?.querySelector(".cards-container");
-        if (!cardsContainer) {
-          console.error("Cards container not found");
-          return;
-        }
-
-        const printContainer = document.createElement("div");
-        printContainer.style.padding = "20px";
-        printContainer.style.backgroundColor = "#fff";
-        printContainer.appendChild(cardsContainer.cloneNode(true));
-
-        const style = document.createElement("style");
-        style.innerHTML = `
-          @media print {
-            body * {
-              visibility: hidden;
-            }
-            .print-container, .print-container * {
-              visibility: visible;
-            }
-            .print-container {
-              position: absolute;
-              left: 0;
-              top: 0;
-              width: 100%;
-              padding: 0px;
-            }
-            .cards-container {
-              display: flex !important;
-              gap: 20px !important;
-            }
-            .cards-container > div {
-              flex: 1 !important;
-              page-break-inside: avoid;
-            }
-          }
-        `;
-
-        printContainer.classList.add("print-container");
-        printContainer.appendChild(style);
-
-        document.body.appendChild(printContainer);
-
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        window.print();
-
-        setTimeout(() => {
-          document.body.removeChild(printContainer);
-        }, 0);
-      } catch (error) {
-        console.error("Error printing challan:", error);
-      } finally {
-        setIsPrinting(false);
-      }
-    };
-
-    printChallan();
-  }, []);
 
   useEffect(() => {
     if (!user || !courses) {
@@ -122,6 +53,86 @@ const ChallanPageGov2 = ({ type }) => {
     }
   }, [type, user, courses]);
 
+  const handlePrint = async () => {
+    setIsPrinting(true);
+    try {
+      const cardsContainer =
+        challanRef.current?.querySelector(".cards-container");
+      if (!cardsContainer) {
+        console.error("Cards container not found");
+        return;
+      }
+
+      const printContainer = document.createElement("div");
+      printContainer.style.padding = "20px";
+      printContainer.style.backgroundColor = "#fff";
+
+      // Clone the container
+      const clonedContainer = cardsContainer.cloneNode(true);
+      printContainer.appendChild(clonedContainer);
+
+      const style = document.createElement("style");
+      style.innerHTML = `
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .print-container, .print-container * {
+            visibility: visible;
+          }
+          .print-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            padding: 0px;
+            background: white;
+          }
+          .cards-container {
+            display: flex !important;
+            gap: 20px !important;
+          }
+          .cards-container > div {
+            flex: 1 !important;
+            page-break-inside: avoid;
+          }
+        }
+      `;
+
+      printContainer.classList.add("print-container");
+      printContainer.appendChild(style);
+
+      document.body.appendChild(printContainer);
+
+      // Wait for images to load in the cloned container
+      const images = printContainer.querySelectorAll("img");
+      await Promise.all(
+        Array.from(images).map((img) => {
+          if (img.complete) return Promise.resolve();
+          return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        })
+      );
+
+      // Small delay to ensure rendering is complete
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      window.print();
+
+      // Cleanup after print dialog is closed (or immediately if non-blocking)
+      // We use a small timeout to allow the print dialog to capture the content
+      setTimeout(() => {
+        document.body.removeChild(printContainer);
+      }, 1000);
+    } catch (error) {
+      console.error("Error printing challan:", error);
+    } finally {
+      setIsPrinting(false);
+    }
+  };
+
   const downloadChallanAsPDF = async () => {
     setIsDownloading(true);
     try {
@@ -150,16 +161,32 @@ const ChallanPageGov2 = ({ type }) => {
         card.style.minHeight = "0";
       });
 
-      pdfContainer.appendChild(cardsContainer.cloneNode(true));
+      const clonedContainer = cardsContainer.cloneNode(true);
+      pdfContainer.appendChild(clonedContainer);
 
       pdfContainer.style.position = "absolute";
       pdfContainer.style.left = "-9999px";
       document.body.appendChild(pdfContainer);
 
+      // Wait for images
+      const images = pdfContainer.querySelectorAll("img");
+      await Promise.all(
+        Array.from(images).map((img) => {
+          if (img.complete) return Promise.resolve();
+          return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        })
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       const canvas = await html2canvas(pdfContainer, {
         scale: 3,
         logging: false,
         useCORS: true,
+        allowTaint: true,
         height: pdfContainer.scrollHeight + 100,
         windowHeight: pdfContainer.scrollHeight + 100,
       });
@@ -426,6 +453,10 @@ const ChallanPageGov2 = ({ type }) => {
     );
   };
 
+  if (!user) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 ">
       <div className="">
@@ -439,7 +470,7 @@ const ChallanPageGov2 = ({ type }) => {
           </Link>
           <div className="flex ml-3">
             <button
-              onClick={() => window.print()}
+              onClick={handlePrint}
               disabled={isPrinting}
               className="px-12 py-2 rounded-md bg-sec2 hover:bg-primary text-white font-medium transition-colors duration-200 flex items-center gap-2 shadow-md disabled:opacity-70"
             >
