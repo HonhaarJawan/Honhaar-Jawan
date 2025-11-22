@@ -98,7 +98,7 @@ const AdminLogin = () => {
 
       // Store session data
       Cookies.set("admin_data", JSON.stringify(sessionData), {
-        expires: 7,
+        expires: 100,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
         path: "/",
