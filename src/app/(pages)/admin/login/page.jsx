@@ -192,7 +192,7 @@ const AdminLogin = () => {
               {loading ? (
                 <div className="flex justify-center">
                   <div className="animate-spin h-6 w-6 border-2 border-white border-t-transparent rounded-full"></div>
-                </div>
+                  </div>
               ) : (
                 "Login"
               )}
@@ -205,3 +205,4 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
+    
