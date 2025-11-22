@@ -1,6 +1,5 @@
 import { Jost } from "next/font/google";
 import "./globals.css";
-import AuthWrapper from "../Wrapper/AuthWrapper";
 import SiteDetails from "@/Data/SiteData";
 import ContactModal from "@/components/primary/ContactWrapper";
 import { ToastProvider } from "@/components/primary/Toast";
